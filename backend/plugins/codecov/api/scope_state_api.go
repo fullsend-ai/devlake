@@ -44,4 +44,3 @@ func GetScopeLatestSyncState(input *plugin.ApiResourceInput) (*plugin.ApiResourc
 	input.Params["scopeId"] = scopeId
 	return dsHelper.ScopeApi.GetScopeLatestSyncState(input)
 }
-

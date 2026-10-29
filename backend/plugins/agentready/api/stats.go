@@ -14,6 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package api
 
 import (
@@ -49,7 +50,7 @@ func GetStats(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 		baseClauses = []dal.Clause{
 			dal.From("_tool_agentready_assessments a"),
 			dal.Join("JOIN project_mapping pm ON a.repo_id = pm.row_id"),
-			dal.Where("pm.project_name = ? AND pm.`table` = ? AND a.connection_id = ?", projectName, models.ProjectMappingTable, connectionId),
+			dal.Where("pm.project_name = ? AND pm."+dal.QuoteIdent(db.Dialect(), "table")+" = ? AND a.connection_id = ?", projectName, models.ProjectMappingTable, connectionId),
 		}
 	} else {
 		baseClauses = []dal.Clause{
@@ -59,8 +60,8 @@ func GetStats(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 	}
 	baseClauses = append(baseClauses, dal.Where("id != ''"))
 
-	aggClauses := make([]dal.Clause, len(baseClauses))
-	copy(aggClauses, baseClauses)
+	aggClauses := make([]dal.Clause, 0, len(baseClauses)+1)
+	aggClauses = append(aggClauses, baseClauses...)
 	aggClauses = append(aggClauses,
 		dal.Select("COUNT(*) as total, AVG(overall_score) as avg_score"),
 	)
@@ -72,8 +73,8 @@ func GetStats(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors
 	}
 
 	var certCounts []CertCount
-	certClauses := make([]dal.Clause, len(baseClauses))
-	copy(certClauses, baseClauses)
+	certClauses := make([]dal.Clause, 0, len(baseClauses)+2)
+	certClauses = append(certClauses, baseClauses...)
 	certClauses = append(certClauses,
 		dal.Select("certification_level, COUNT(*) as count"),
 		dal.Groupby("certification_level"),

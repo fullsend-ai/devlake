@@ -23,4 +23,3 @@ import (
 
 // PluginEntry is a variable exported for Framework to search and load
 var PluginEntry impl.Codecov //nolint
-

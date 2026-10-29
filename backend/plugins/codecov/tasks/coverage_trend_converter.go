@@ -71,11 +71,8 @@ func ConvertCoverageTrend(taskCtx plugin.SubTaskContext) errors.Error {
 				return nil, err
 			}
 
-			// Extract branch from scope config or default to main
+			// Scope config has no branch field yet; trends are stored against main.
 			branch := "main"
-			if data.Options.ScopeConfig != nil {
-				// Could add branch config here if needed
-			}
 
 			// Parse timestamp like "2025-12-02T00:00:00Z"
 			date, parseErr := time.Parse(time.RFC3339, point.Timestamp)

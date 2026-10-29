@@ -59,7 +59,7 @@ func ExtractAiReviews(taskCtx plugin.SubTaskContext) errors.Error {
 			dal.Join("LEFT JOIN pull_requests pr ON prc.pull_request_id = pr.id"),
 			dal.Join("LEFT JOIN accounts a ON prc.account_id = a.id"),
 			dal.Join("LEFT JOIN project_mapping pm ON pr.base_repo_id = pm.row_id"),
-			dal.Where("pm.project_name = ? AND pm.`table` = ?", data.Options.ProjectName, "repos"),
+			dal.Where("pm.project_name = ? AND pm."+dal.QuoteIdent(db.Dialect(), "table")+" = ?", data.Options.ProjectName, "repos"),
 		}
 	} else {
 		logger.Info("Starting AI review extraction for repo: %s", data.Options.RepoId)

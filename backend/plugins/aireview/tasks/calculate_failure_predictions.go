@@ -198,6 +198,7 @@ func CalculateFailurePredictions(taskCtx plugin.SubTaskContext) errors.Error {
 				Additions:             ps.Additions,
 				Deletions:             ps.Deletions,
 				ObservationWindowDays: 0,
+				ObservationEndDate:    now,
 				CreatedAt:             now,
 			})
 			writtenThisSource++
@@ -247,6 +248,7 @@ func CalculateFailurePredictions(taskCtx plugin.SubTaskContext) errors.Error {
 			Additions:             ps.Additions,
 			Deletions:             ps.Deletions,
 			ObservationWindowDays: 0,
+			ObservationEndDate:    now,
 			CreatedAt:             now,
 		})
 		totalWritten++
@@ -365,7 +367,7 @@ func loadAiReviewPrSummaries(db dal.Dal, repoId, projectName string) ([]prAiSumm
 			dal.From("_tool_aireview_reviews ar"),
 			dal.Join("JOIN pull_requests pr ON ar.pull_request_id = pr.id"),
 			dal.Join("JOIN repos r ON ar.repo_id = r.id"),
-			dal.Join("JOIN project_mapping pm ON ar.repo_id = pm.row_id AND pm.`table` = 'repos'"),
+			dal.Join("JOIN project_mapping pm ON ar.repo_id = pm.row_id AND pm." + dal.QuoteIdent(db.Dialect(), "table") + " = 'repos'"),
 			dal.Where("pm.project_name = ? AND ar.body NOT LIKE '%Review skipped%'", projectName),
 			dal.Groupby("ar.pull_request_id, pr.pull_request_key, ar.repo_id, r.name, ar.ai_tool"),
 		}

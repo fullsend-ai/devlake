@@ -14,6 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package api
 
 import (
@@ -67,7 +68,7 @@ func GetAssessments(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 			dal.Select("DISTINCT a.*"),
 			dal.From("_tool_agentready_assessments a"),
 			dal.Join("JOIN project_mapping pm ON a.repo_id = pm.row_id"),
-			dal.Where("pm.project_name = ? AND pm.`table` = ? AND a.connection_id = ?", projectName, models.ProjectMappingTable, connectionId),
+			dal.Where("pm.project_name = ? AND pm."+dal.QuoteIdent(db.Dialect(), "table")+" = ? AND a.connection_id = ?", projectName, models.ProjectMappingTable, connectionId),
 		}
 	} else {
 		clauses = []dal.Clause{

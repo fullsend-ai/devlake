@@ -94,6 +94,7 @@ func TestConvertPredictionMetrics_WithProject(t *testing.T) {
 	mockCtx.On("GetData").Return(data)
 	mockLogger.On("Info", mock.Anything, mock.Anything).Maybe()
 
+	mockDalI.On("Dialect").Return("mysql")
 	mockDalI.On("Delete", mock.Anything, mock.Anything).Return(nil)
 	mockDalI.On("Cursor", mock.Anything).Return(mockRows, nil)
 	mockRows.On("Next").Return(true).Once()

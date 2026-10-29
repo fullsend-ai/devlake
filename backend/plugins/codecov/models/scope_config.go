@@ -36,4 +36,3 @@ func (sc CodecovScopeConfig) GetConnectionId() uint64 {
 func (CodecovScopeConfig) TableName() string {
 	return "_tool_codecov_scope_configs"
 }
-

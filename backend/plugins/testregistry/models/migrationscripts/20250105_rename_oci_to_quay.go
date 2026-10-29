@@ -65,13 +65,8 @@ func (*renameOciToQuay) Up(basicRes context.BasicRes) errors.Error {
 		errMsg := err.Error()
 		if strings.Contains(errMsg, "Unknown column") || strings.Contains(errMsg, "1054") {
 			// Column doesn't exist, check if full_name already exists, if not add it
-			err2 := db.Exec("ALTER TABLE _tool_testregistry_scopes ADD COLUMN full_name VARCHAR(500)")
-			if err2 != nil {
-				errMsg2 := err2.Error()
-				if !strings.Contains(errMsg2, "Duplicate column name") && !strings.Contains(errMsg2, "1060") {
-					// If adding failed and it's not a duplicate, continue to next step
-				}
-			}
+			// A duplicate column is success. Any other add failure is ignored so a later step can still run.
+			_ = db.Exec("ALTER TABLE _tool_testregistry_scopes ADD COLUMN full_name VARCHAR(500)")
 		}
 	}
 
@@ -81,22 +76,17 @@ func (*renameOciToQuay) Up(basicRes context.BasicRes) errors.Error {
 		errMsg := err.Error()
 		if strings.Contains(errMsg, "Unknown column") || strings.Contains(errMsg, "1054") {
 			// Column doesn't exist, check if name already exists, if not add it
-			err2 := db.Exec("ALTER TABLE _tool_testregistry_scopes ADD COLUMN name VARCHAR(500)")
-			if err2 != nil {
-				errMsg2 := err2.Error()
-				if !strings.Contains(errMsg2, "Duplicate column name") && !strings.Contains(errMsg2, "1060") {
-					// If adding failed and it's not a duplicate, continue to next step
-				}
-			}
+			// A duplicate column is success. Any other add failure is ignored so a later step can still run.
+			_ = db.Exec("ALTER TABLE _tool_testregistry_scopes ADD COLUMN name VARCHAR(500)")
 		}
 	}
 
 	// Step 3: Handle legacy oci_artifact_url column if it exists (copy data to full_name if full_name is empty)
 	// First check if oci_artifact_url column exists and copy data if needed
 	// We'll try to copy data, but if the column doesn't exist, that's fine
-	db.Exec("UPDATE _tool_testregistry_scopes SET full_name = oci_artifact_url WHERE (full_name IS NULL OR full_name = '') AND oci_artifact_url IS NOT NULL AND oci_artifact_url != ''")
+	_ = db.Exec("UPDATE _tool_testregistry_scopes SET full_name = oci_artifact_url WHERE (full_name IS NULL OR full_name = '') AND oci_artifact_url IS NOT NULL AND oci_artifact_url != ''")
 	// Then try to drop the old column (ignore errors if it doesn't exist)
-	db.Exec("ALTER TABLE _tool_testregistry_scopes DROP COLUMN oci_artifact_url")
+	_ = db.Exec("ALTER TABLE _tool_testregistry_scopes DROP COLUMN oci_artifact_url")
 
 	return nil
 }

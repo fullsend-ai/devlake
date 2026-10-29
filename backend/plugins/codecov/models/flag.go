@@ -22,7 +22,7 @@ import (
 )
 
 type CodecovFlag struct {
-	common.NoPKModel // Includes CreatedAt, UpdatedAt, and RawDataOrigin
+	common.NoPKModel          // Includes CreatedAt, UpdatedAt, and RawDataOrigin
 	ConnectionId     uint64   `gorm:"primaryKey;type:bigint" json:"connectionId"`
 	RepoId           string   `gorm:"primaryKey;type:varchar(200)" json:"repoId"`
 	FlagName         string   `gorm:"primaryKey;type:varchar(100)" json:"flagName"`

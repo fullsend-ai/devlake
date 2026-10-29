@@ -178,6 +178,9 @@ func TestFindAndProcessJUnitFiles(t *testing.T) {
 	})
 
 	t.Run("unreadable file is skipped gracefully", func(t *testing.T) {
+		if os.Geteuid() == 0 {
+			t.Skip("root ignores file mode 000, so os.ReadFile still succeeds")
+		}
 		mockCtx, _, _ := setupMockContext(t)
 
 		dir := t.TempDir()

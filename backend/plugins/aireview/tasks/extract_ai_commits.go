@@ -184,7 +184,7 @@ func resolveAiCommitRepoIds(db dal.Dal, data *AiReviewTaskData) ([]string, error
 		var repoIds []string
 		err := db.Pluck("row_id", &repoIds,
 			dal.From("project_mapping"),
-			dal.Where("project_name = ? AND `table` = ?", data.Options.ProjectName, "repos"),
+			dal.Where("project_name = ? AND "+dal.QuoteIdent(db.Dialect(), "table")+" = ?", data.Options.ProjectName, "repos"),
 		)
 		if err != nil {
 			return nil, errors.Default.Wrap(err, "failed to load project repos")

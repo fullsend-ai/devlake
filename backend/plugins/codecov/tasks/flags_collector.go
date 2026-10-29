@@ -74,4 +74,3 @@ func CollectFlags(taskCtx plugin.SubTaskContext) errors.Error {
 
 	return collector.Execute()
 }
-

@@ -122,7 +122,7 @@ func MatchSuggestionDiffs(taskCtx plugin.SubTaskContext) errors.Error {
 	// Step 4: For each PR, load commits, patches, and match
 	totalMatched := 0
 	reviewAcceptedCounts := make(map[string]int)       // ai_review_id -> count of diff-accepted
-	reviewAcceptedScores := make(map[string][]float64)  // ai_review_id -> list of match scores
+	reviewAcceptedScores := make(map[string][]float64) // ai_review_id -> list of match scores
 
 	for prId, prFindings := range findingsByPR {
 		// Get commits for this PR
@@ -654,7 +654,7 @@ func enrichFindingFilePaths(db dal.Dal, data *AiReviewTaskData) (int, errors.Err
 			dal.Join("JOIN pull_request_comments prc ON ar.review_id = prc.id"),
 			dal.Join("JOIN pull_requests pr ON prc.pull_request_id = pr.id"),
 			dal.Join("JOIN project_mapping pm ON pr.base_repo_id = pm.row_id"),
-			dal.Where("pm.project_name = ? AND pm.`table` = ? AND f.file_path = '' AND prc._raw_data_table != ''",
+			dal.Where("pm.project_name = ? AND pm."+dal.QuoteIdent(db.Dialect(), "table")+" = ? AND f.file_path = '' AND prc._raw_data_table != ''",
 				data.Options.ProjectName, "repos"),
 		}
 	} else {

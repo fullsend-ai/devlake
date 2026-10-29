@@ -45,6 +45,8 @@ jobs:
           MYSQL_USER: merico
           MYSQL_PASSWORD: merico
           MYSQL_ROOT_PASSWORD: root
+        # Match docker-compose-dev-mysql.yml: zero time.Time values are stored as 0000-00-00.
+        options: --sql-mode=ONLY_FULL_GROUP_BY\,STRICT_TRANS_TABLES\,ERROR_FOR_DIVISION_BY_ZERO\,NO_ENGINE_SUBSTITUTION
     container: apache/devlake:lake-builder-v0.0.16
     steps:
       - name: Checkout code

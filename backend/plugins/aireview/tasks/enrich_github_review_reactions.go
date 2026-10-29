@@ -67,7 +67,7 @@ func EnrichGithubReviewReactions(taskCtx plugin.SubTaskContext) errors.Error {
 			dal.Join("JOIN pull_request_comments prc ON ar.review_id = prc.id"),
 			dal.Join("JOIN pull_requests pr ON prc.pull_request_id = pr.id"),
 			dal.Join("JOIN project_mapping pm ON pr.base_repo_id = pm.row_id"),
-			dal.Where("pm.project_name = ? AND pm.`table` = ? AND prc._raw_data_table != ''", data.Options.ProjectName, "repos"),
+			dal.Where("pm.project_name = ? AND pm."+dal.QuoteIdent(db.Dialect(), "table")+" = ? AND prc._raw_data_table != ''", data.Options.ProjectName, "repos"),
 		}
 	} else {
 		clauses = []dal.Clause{

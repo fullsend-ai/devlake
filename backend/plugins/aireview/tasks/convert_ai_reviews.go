@@ -24,8 +24,8 @@ import (
 
 	"github.com/apache/devlake/core/dal"
 	"github.com/apache/devlake/core/errors"
-	domainCode "github.com/apache/devlake/core/models/domainlayer/code"
 	"github.com/apache/devlake/core/models/domainlayer"
+	domainCode "github.com/apache/devlake/core/models/domainlayer/code"
 	"github.com/apache/devlake/core/plugin"
 	"github.com/apache/devlake/plugins/aireview/models"
 )
@@ -60,7 +60,7 @@ func ConvertAiReviews(taskCtx plugin.SubTaskContext) errors.Error {
 
 	cursor, err := db.Cursor(
 		dal.From(&models.AiReview{}),
-		dal.Join("JOIN project_mapping pm ON _tool_aireview_reviews.repo_id = pm.row_id AND pm.`table` = 'repos'"),
+		dal.Join("JOIN project_mapping pm ON _tool_aireview_reviews.repo_id = pm.row_id AND pm."+dal.QuoteIdent(db.Dialect(), "table")+" = 'repos'"),
 		dal.Where("pm.project_name = ? AND _tool_aireview_reviews.body NOT LIKE '%Review skipped%'", projectName),
 	)
 	if err != nil {

@@ -55,7 +55,7 @@ func ConvertAiCommits(taskCtx plugin.SubTaskContext) errors.Error {
 
 	cursor, err := db.Cursor(
 		dal.From(&models.AiCommit{}),
-		dal.Join("JOIN project_mapping pm ON _tool_aireview_commits.repo_id = pm.row_id AND pm.`table` = 'repos'"),
+		dal.Join("JOIN project_mapping pm ON _tool_aireview_commits.repo_id = pm.row_id AND pm."+dal.QuoteIdent(db.Dialect(), "table")+" = 'repos'"),
 		dal.Where("pm.project_name = ?", projectName),
 	)
 	if err != nil {

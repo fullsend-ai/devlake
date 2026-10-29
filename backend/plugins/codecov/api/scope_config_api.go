@@ -96,4 +96,3 @@ func PatchScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput
 func DeleteScopeConfig(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	return dsHelper.ScopeConfigApi.Delete(input)
 }
-

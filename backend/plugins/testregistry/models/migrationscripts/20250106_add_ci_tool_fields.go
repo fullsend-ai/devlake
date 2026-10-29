@@ -61,7 +61,7 @@ func (*addCiToolFields) Up(basicRes context.BasicRes) errors.Error {
 
 	// Set default ci_tool to 'Tekton CI' for existing records (migrate existing data)
 	// Also ensure quay_organization is set where it exists
-	db.Exec("UPDATE _tool_testregistry_connections SET ci_tool = 'Tekton CI' WHERE ci_tool IS NULL OR ci_tool = ''")
+	_ = db.Exec("UPDATE _tool_testregistry_connections SET ci_tool = 'Tekton CI' WHERE ci_tool IS NULL OR ci_tool = ''")
 
 	return nil
 }

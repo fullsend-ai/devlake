@@ -24,8 +24,6 @@ import (
 	"github.com/apache/devlake/plugins/testregistry/models"
 )
 
-const pluginName = "testregistry"
-
 var basicRes context.BasicRes
 
 var dsHelper *api.DsHelper[models.TestRegistryConnection, models.TestRegistryScope, models.TestRegistryScopeConfig]

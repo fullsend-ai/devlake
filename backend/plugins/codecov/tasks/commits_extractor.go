@@ -53,11 +53,11 @@ func ExtractCommits(taskCtx plugin.SubTaskContext) errors.Error {
 		},
 		Extract: func(resData *helper.RawData) ([]interface{}, errors.Error) {
 			var commit struct {
-				Commitid  string `json:"commitid"`
-				Branch    string `json:"branch"`
-				Message   string `json:"message"`
-				Parent    string `json:"parent"` // Parent commit SHA for comparisons
-				Author    struct {
+				Commitid string `json:"commitid"`
+				Branch   string `json:"branch"`
+				Message  string `json:"message"`
+				Parent   string `json:"parent"` // Parent commit SHA for comparisons
+				Author   struct {
 					Name string `json:"name"`
 				} `json:"author"`
 				Timestamp string `json:"timestamp"`

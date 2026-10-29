@@ -513,4 +513,27 @@ upstream into the mysql and postgresql files; do not restore the old file.
 
 **Rebase notes:** Put the `sql-mode` flag on the MySQL services and the three
 `GF_AUTH_ANONYMOUS_*` / `GF_AUTH_DISABLE_LOGIN_FORM` variables on the Grafana
-services.
+services. The GitHub Actions MySQL service in `.github/workflows/test-e2e.yml`
+uses the same `sql-mode`. e2e coverage composes
+`docker-compose-dev-mysql.yml` with `docker-compose-e2e-coverage.yml`.
+
+## SQL identifier quoting for Postgres
+
+**Files:**
+- `backend/core/dal/dal.go`
+- `backend/core/models/migrationscripts/20260422000002_fix_ai_review_domain_columns.go`
+- `backend/plugins/aireview/`
+- `backend/plugins/agentready/api/`
+
+**Reason:** Owned-plugin queries quote `project_mapping.table` with MySQL
+backticks, and the aireview domain migration uses MySQL column types.
+Postgres rejects both. `dal.QuoteIdent` quotes the identifier for the active
+dialect, and the migration branches on `db.Dialect()`.
+
+**Upstream status:** Pending. The quoting helper is in core because plugins
+must not import each other.
+**Upstream PR:** none
+**Owner:** @fmuntean
+
+**Rebase notes:** Keep `QuoteIdent`. Do not put MySQL backticks back into raw
+SQL that runs on both e2e databases.

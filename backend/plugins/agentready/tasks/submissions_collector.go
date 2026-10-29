@@ -14,6 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package tasks
 
 import (
@@ -34,6 +35,7 @@ import (
 )
 
 const maxTreeResponseSize = 5 << 20
+
 // Upstream convention: each submissions/{org}/{repo}/ directory contains timestamped
 // assessment files plus an assessment-latest.json symlink pointing to the most recent one.
 // We only collect the symlink to avoid duplicate DB rows per repo. The GitHub Contents API

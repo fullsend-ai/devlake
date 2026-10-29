@@ -60,7 +60,7 @@ func GetReviews(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, erro
 			dal.Select("r.*"),
 			dal.From("_tool_aireview_reviews r"),
 			dal.Join("JOIN project_mapping pm ON r.repo_id = pm.row_id"),
-			dal.Where("pm.project_name = ? AND pm.`table` = ?", projectName, "repos"),
+			dal.Where("pm.project_name = ? AND pm."+dal.QuoteIdent(db.Dialect(), "table")+" = ?", projectName, "repos"),
 		}
 	} else {
 		clauses = []dal.Clause{
@@ -155,7 +155,7 @@ func GetReviewStats(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, 
 		baseClauses = []dal.Clause{
 			dal.From("_tool_aireview_reviews r"),
 			dal.Join("JOIN project_mapping pm ON r.repo_id = pm.row_id"),
-			dal.Where("pm.project_name = ? AND pm.`table` = ?", projectName, "repos"),
+			dal.Where("pm.project_name = ? AND pm."+dal.QuoteIdent(db.Dialect(), "table")+" = ?", projectName, "repos"),
 		}
 	} else {
 		baseClauses = []dal.Clause{

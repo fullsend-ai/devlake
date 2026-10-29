@@ -56,7 +56,7 @@ func (c TestRegistryConnection) Sanitize() TestRegistryConnection {
 	return c
 }
 
-func (connection *TestRegistryConnection) MergeFromRequest(target *TestRegistryConnection, body map[string]interface{}) error {
+func (c *TestRegistryConnection) MergeFromRequest(target *TestRegistryConnection, body map[string]interface{}) error {
 	// Preserve existing GitHub token if it wasn't changed (user sent sanitized version)
 	existingToken := target.GitHubToken
 	if err := helper.DecodeMapStruct(body, target, true); err != nil {

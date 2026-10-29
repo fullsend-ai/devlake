@@ -34,7 +34,17 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803  # v6
 
       - name: Run Hadolint
-        uses: hadolint/hadolint-action@54c9adbab1582c2ef04b2016b760714a4bfde3cf  # v3.1.0
-        with:
-          recursive: true
-          config: .hadolint.yaml
+        run: |
+          mapfile -d '' files < <(find . -type f \
+            \( -name 'Dockerfile' -o -name 'Dockerfile.*' -o -name '*.dockerfile' \) \
+            ! -path './.git/*' -print0)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No Dockerfiles found"
+            exit 0
+          fi
+          docker run --rm \
+            -v "$PWD:/work" \
+            -w /work \
+            hadolint/hadolint:2.14.0 \
+            --config .hadolint.yaml \
+            "${files[@]}"

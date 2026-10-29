@@ -20,8 +20,8 @@ package tasks
 import (
 	"github.com/apache/devlake/core/dal"
 	"github.com/apache/devlake/core/errors"
-	domainCode "github.com/apache/devlake/core/models/domainlayer/code"
 	"github.com/apache/devlake/core/models/domainlayer"
+	domainCode "github.com/apache/devlake/core/models/domainlayer/code"
 	"github.com/apache/devlake/core/plugin"
 	"github.com/apache/devlake/plugins/aireview/models"
 )
@@ -56,7 +56,7 @@ func ConvertFailurePredictions(taskCtx plugin.SubTaskContext) errors.Error {
 	// _tool_aireview_failure_predictions stores repo_id which matches project_mapping.row_id.
 	cursor, err := db.Cursor(
 		dal.From(&models.AiFailurePrediction{}),
-		dal.Join("JOIN project_mapping pm ON _tool_aireview_failure_predictions.repo_id = pm.row_id AND pm.`table` = 'repos'"),
+		dal.Join("JOIN project_mapping pm ON _tool_aireview_failure_predictions.repo_id = pm.row_id AND pm."+dal.QuoteIdent(db.Dialect(), "table")+" = 'repos'"),
 		dal.Where("pm.project_name = ?", projectName),
 	)
 	if err != nil {

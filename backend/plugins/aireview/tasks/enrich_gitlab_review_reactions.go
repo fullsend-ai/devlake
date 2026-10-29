@@ -82,7 +82,7 @@ func EnrichGitlabReviewReactions(taskCtx plugin.SubTaskContext) errors.Error {
 			dal.From("_tool_aireview_reviews ar"),
 			dal.Join("JOIN pull_requests pr ON ar.pull_request_id = pr.id"),
 			dal.Join("JOIN project_mapping pm ON pr.base_repo_id = pm.row_id"),
-			dal.Where("ar.source_platform = ? AND pm.project_name = ? AND pm.`table` = ?", "gitlab", data.Options.ProjectName, "repos"),
+			dal.Where("ar.source_platform = ? AND pm.project_name = ? AND pm."+dal.QuoteIdent(db.Dialect(), "table")+" = ?", "gitlab", data.Options.ProjectName, "repos"),
 		}
 	} else {
 		reviewClauses = []dal.Clause{

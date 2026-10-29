@@ -66,16 +66,16 @@ func (archivedAiReview20260422) TableName() string { return "ai_reviews" }
 type archivedAiFailurePrediction20260422 struct {
 	Id string `gorm:"primaryKey;type:varchar(255)"`
 
-	ProjectName     string    `gorm:"index;type:varchar(255)"`
-	PullRequestId   string    `gorm:"index;type:varchar(255)"`
-	PullRequestKey  string    `gorm:"index;type:varchar(255)"`
-	RepoId          string    `gorm:"index;type:varchar(255)"`
-	RepoName        string    `gorm:"type:varchar(255)"`
-	AiTool          string    `gorm:"type:varchar(100)"`
-	CiFailureSource string    `gorm:"type:varchar(20);index"`
-	PrTitle         string    `gorm:"type:varchar(500)"`
-	PrUrl           string    `gorm:"type:varchar(1024)"`
-	PrAuthor        string    `gorm:"type:varchar(255)"`
+	ProjectName     string `gorm:"index;type:varchar(255)"`
+	PullRequestId   string `gorm:"index;type:varchar(255)"`
+	PullRequestKey  string `gorm:"index;type:varchar(255)"`
+	RepoId          string `gorm:"index;type:varchar(255)"`
+	RepoName        string `gorm:"type:varchar(255)"`
+	AiTool          string `gorm:"type:varchar(100)"`
+	CiFailureSource string `gorm:"type:varchar(20);index"`
+	PrTitle         string `gorm:"type:varchar(500)"`
+	PrUrl           string `gorm:"type:varchar(1024)"`
+	PrAuthor        string `gorm:"type:varchar(255)"`
 	PrCreatedAt     time.Time
 	Additions       int
 	Deletions       int

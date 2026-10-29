@@ -128,7 +128,7 @@ export const AiReviewScopeConfigModal = ({ scopeConfigId, onCancel, onSave }: Pr
       <Spin spinning={loading}>
         <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
           {/* ── Prediction Thresholds ── */}
-          <Divider orientation="left" plain>
+          <Divider orientation="start" plain>
             Prediction Thresholds
           </Divider>
           <Space size="large" wrap>
@@ -163,7 +163,7 @@ export const AiReviewScopeConfigModal = ({ scopeConfigId, onCancel, onSave }: Pr
           </Space>
 
           {/* ── CI Failure Filtering ── */}
-          <Divider orientation="left" plain>
+          <Divider orientation="start" plain>
             CI Failure Filtering
           </Divider>
           <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
@@ -183,7 +183,7 @@ export const AiReviewScopeConfigModal = ({ scopeConfigId, onCancel, onSave }: Pr
           </Form.Item>
 
           {/* ── CI Backfill ── */}
-          <Divider orientation="left" plain>
+          <Divider orientation="start" plain>
             CI Data Backfill (Openshift CI / GCS)
           </Divider>
           <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
@@ -200,7 +200,7 @@ export const AiReviewScopeConfigModal = ({ scopeConfigId, onCancel, onSave }: Pr
           </Form.Item>
 
           {/* ── Tool Detection ── */}
-          <Divider orientation="left" plain>
+          <Divider orientation="start" plain>
             AI Tool Detection
           </Divider>
           <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
