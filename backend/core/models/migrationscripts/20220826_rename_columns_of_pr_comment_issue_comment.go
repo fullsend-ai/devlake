@@ -29,11 +29,10 @@ type renameColumnsOfPrCommentIssueComment struct{}
 
 func (*renameColumnsOfPrCommentIssueComment) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
-	err := db.RenameColumn("pull_request_comments", "user_id", "account_id")
-	if err != nil {
+	if err := renameColumnIfAbsent(db, "pull_request_comments", "user_id", "account_id"); err != nil {
 		return err
 	}
-	return db.RenameColumn("issue_comments", "user_id", "account_id")
+	return renameColumnIfAbsent(db, "issue_comments", "user_id", "account_id")
 }
 
 func (*renameColumnsOfPrCommentIssueComment) Version() uint64 {

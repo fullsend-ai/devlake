@@ -46,12 +46,11 @@ func (u *addProjectPrMetric) Up(baseRes context.BasicRes) errors.Error {
 		`orig_review_timespan`,
 		`orig_deploy_timespan`,
 	}
-	err = db.DropColumns(`pull_requests`, prColums...)
+	err = dropColumnsIfExist(db, `pull_requests`, prColums...)
 	if err != nil {
 		return err
 	}
-	err = db.DropColumns(`cicd_pipeline_commits`, "repo_url")
-	return err
+	return dropColumnsIfExist(db, `cicd_pipeline_commits`, "repo_url")
 }
 
 func (*addProjectPrMetric) Version() uint64 {

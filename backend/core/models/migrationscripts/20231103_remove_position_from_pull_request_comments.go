@@ -26,7 +26,7 @@ import (
 type removePositionFromPullRequestComments struct{}
 
 func (u *removePositionFromPullRequestComments) Up(basicRes context.BasicRes) errors.Error {
-	return basicRes.GetDal().DropColumns(archived.PullRequestComment{}.TableName(), "position")
+	return dropColumnsIfExist(basicRes.GetDal(), archived.PullRequestComment{}.TableName(), "position")
 }
 
 func (*removePositionFromPullRequestComments) Version() uint64 {

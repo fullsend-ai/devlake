@@ -29,15 +29,10 @@ type renameColumnsOfPullRequestIssue struct{}
 
 func (*renameColumnsOfPullRequestIssue) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
-	err := db.RenameColumn("pull_request_issues", "pull_request_number", "pull_request_key")
-	if err != nil {
+	if err := renameColumnIfAbsent(db, "pull_request_issues", "pull_request_number", "pull_request_key"); err != nil {
 		return err
 	}
-	err = db.RenameColumn("pull_request_issues", "issue_number", "issue_key")
-	if err != nil {
-		return err
-	}
-	return nil
+	return renameColumnIfAbsent(db, "pull_request_issues", "issue_number", "issue_key")
 }
 
 func (*renameColumnsOfPullRequestIssue) Version() uint64 {

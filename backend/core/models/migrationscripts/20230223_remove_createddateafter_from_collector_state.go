@@ -84,7 +84,7 @@ func (script *removeCreatedDateAfterFromCollectorMeta20230223) Up(basicRes conte
 	}
 
 	// step 3: drop collector_latest_state.created_date_after
-	return db.DropColumns(table, "created_date_after")
+	return dropColumnsIfExist(db, table, "created_date_after")
 }
 
 func (*removeCreatedDateAfterFromCollectorMeta20230223) Version() uint64 {

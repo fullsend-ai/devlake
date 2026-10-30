@@ -1,0 +1,59 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# E2E coverage overlay — use with:
+#   docker compose -f docker-compose-dev-mysql.yml -f docker-compose-e2e-coverage.yml up -d
+#
+# WARNING: Sets AUTH_ENABLED=false — do not use outside CI/test environments.
+#
+# Backend: built with -cover + coverport HTTP server on port 9095.
+# Published ports match the coverage workflow (API 8080, config-ui 4000).
+services:
+  mysql:
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-umerico", "-pmerico"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  devlake:
+    build:
+      context: backend
+      dockerfile: Containerfile
+      args:
+        DEVLAKE_COVER: "1"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+      - "9095:9095"
+    environment:
+      COVERAGE_PORT: "9095"
+      DB_URL: mysql://merico:merico@mysql:3306/lake?charset=utf8mb4&parseTime=True&loc=UTC
+      ENCRYPTION_SECRET: e2e-test-secret
+      FORCE_MIGRATION: "true"
+      AUTH_ENABLED: "false"
+
+  config-ui:
+    ports:
+      - "4000:4000"
+
+  # Host networking does not work on the coverage runner.
+  authproxy:
+    profiles:
+      - ci-skip

@@ -36,8 +36,7 @@ func (ProjectMetricSetting) TableName() string {
 
 func (script *renameProjectMetrics) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
-	// To create multiple tables with migrationhelper
-	return db.RenameTable(ProjectMetric{}.TableName(), ProjectMetricSetting{}.TableName())
+	return renameTableIfAbsent(db, ProjectMetric{}.TableName(), ProjectMetricSetting{}.TableName())
 }
 
 func (*renameProjectMetrics) Version() uint64 {

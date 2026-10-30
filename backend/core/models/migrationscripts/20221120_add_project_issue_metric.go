@@ -35,7 +35,7 @@ func (u *addProjectIssueMetric) Up(baseRes context.BasicRes) errors.Error {
 	if err != nil {
 		return err
 	}
-	return db.DropColumns(`issues`, "deployment_id")
+	return dropColumnsIfExist(db, `issues`, "deployment_id")
 }
 
 func (*addProjectIssueMetric) Version() uint64 {
