@@ -673,7 +673,8 @@ create flags). e2e coverage composes `docker-compose-dev-mysql.yml` with
 is `ubi9/nodejs-24` because the Vite/Rolldown build imports `util.styleText`,
 which Node 18 does not provide. Set `ENCRYPTION_SECRET` in
 `docker-compose-e2e-coverage.yml` and in `.github/workflows/test-e2e-coverage.yml`
-(same value as `test-e2e.yml`).
+(same value as `test-e2e.yml`). The coverage workflow uses Node 24 for Playwright
+(`@playwright/test` 1.64+ requires Node >= 20).
 
 ## SQL identifier quoting for Postgres
 
