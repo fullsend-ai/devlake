@@ -206,6 +206,23 @@ to `longtext` and broke the indexed column on MySQL (Error 1170).
 **Rebase notes:** Keep `gorm:"index;type:varchar(255)"` on `CicdScopeId` in
 the 20221107 snapshot structs.
 
+## Framework migration: skip project_pr_metrics deployment rename when applied
+
+**Files:**
+- `backend/core/models/migrationscripts/20230416_rename_project_pr_metrict_deployment_id.go`
+
+**Reason:** Plugin e2e AutoMigrate creates `project_pr_metrics` with
+`deployment_commit_id` before framework migrations run. Replaying
+`20221111` can add legacy `deployment_id`; renaming then fails on Postgres
+because the target column already exists.
+
+**Upstream status:** Pending — idempotent rename / drop duplicate column.
+**Upstream PR:** none
+**Owner:** @fmuntean
+
+**Rebase notes:** Rename only when `deployment_id` exists and
+`deployment_commit_id` does not; drop `deployment_id` when both exist.
+
 ## jira: cleanup stale board associations after tickets leave/change board
 
 **Files:**

@@ -28,7 +28,20 @@ var _ plugin.MigrationScript = (*renameDeploymentIdForPrProjectMetric)(nil)
 type renameDeploymentIdForPrProjectMetric struct{}
 
 func (*renameDeploymentIdForPrProjectMetric) Up(basicRes context.BasicRes) errors.Error {
-	return basicRes.GetDal().RenameColumn("project_pr_metrics", "deployment_id", "deployment_commit_id")
+	db := basicRes.GetDal()
+	if !db.HasTable("project_pr_metrics") {
+		return nil
+	}
+	hasOld := db.HasColumn("project_pr_metrics", "deployment_id")
+	hasNew := db.HasColumn("project_pr_metrics", "deployment_commit_id")
+	if hasOld && !hasNew {
+		return db.RenameColumn("project_pr_metrics", "deployment_id", "deployment_commit_id")
+	}
+	if hasOld && hasNew {
+		// Domain AutoMigrate may create deployment_commit_id before this rename runs.
+		return db.DropColumns("project_pr_metrics", "deployment_id")
+	}
+	return nil
 }
 
 func (*renameDeploymentIdForPrProjectMetric) Version() uint64 {
