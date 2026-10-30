@@ -34,14 +34,14 @@ type ComparisonData struct {
 	CommitSha        string   `gorm:"primaryKey;type:varchar(64);index"`
 	FlagName         string   `gorm:"primaryKey;type:varchar(100);index"`
 	ParentSha        string   `gorm:"type:varchar(64)"`
-	ModifiedCoverage float64  `gorm:"type:double"`
+	ModifiedCoverage float64
 	FilesChanged     int      `gorm:"type:int"`
 	MethodsCovered   int      `gorm:"type:int"`
 	MethodsTotal     int      `gorm:"type:int"`
 	LinesCovered     int      `gorm:"type:int"`    // Lines covered in modified code
 	LinesTotal       int      `gorm:"type:int"`    // Total lines in modified code
 	LinesMissed      int      `gorm:"type:int"`    // Lines missed in modified code
-	Patch            *float64 `gorm:"type:double"` // Patch coverage from compare API (can be null)
+	Patch            *float64 // Patch coverage from compare API (can be null)
 }
 
 func (ComparisonData) TableName() string {

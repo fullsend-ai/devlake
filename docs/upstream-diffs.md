@@ -158,6 +158,23 @@ trips shellcheck SC2046.
 
 **Rebase notes:** Keep `make -j"$(nproc)"`. Do not drop the quotes.
 
+## Framework migration: idempotent cicd_pipeline_commits rename
+
+**Files:**
+- `backend/core/models/migrationscripts/20220915_rename_pipeline_commits.go`
+
+**Reason:** Plugin e2e tests AutoMigrate domain tables on the shared e2e database
+without writing `_devlake_migration_history`. When testregistry starts the API
+server, pending migrations try to `RENAME cicd_pipeline_repos TO
+cicd_pipeline_commits` even though `cicd_pipeline_commits` already exists.
+
+**Upstream status:** Pending — safe idempotent guard; worth proposing upstream.
+**Upstream PR:** none
+**Owner:** @fmuntean
+
+**Rebase notes:** Keep the `HasTable` / `HasColumn` guards. Do not restore an
+unconditional `RenameTable`.
+
 ## jira: cleanup stale board associations after tickets leave/change board
 
 **Files:**
@@ -544,6 +561,8 @@ which Node 18 does not provide.
 - `backend/plugins/aireview/`
 - `backend/plugins/agentready/api/`
 - `backend/plugins/schema_e2e/migration_schema_test.go`
+- `backend/plugins/codecov/models/migrationscripts/20251116000000_add_comparison_table.go`
+- `backend/plugins/codecov/tasks/comparison_converter.go`
 
 **Reason:** Owned-plugin queries quote `project_mapping.table` with MySQL
 backticks, and the aireview domain migration uses MySQL column types.
@@ -559,7 +578,8 @@ must not import each other.
 SQL that runs on both e2e databases. Do not set `gorm:"type:longtext"` on
 owned-plugin models; leave the column type unset so MySQL uses longtext and
 Postgres uses text. Codecov dedup migrations that use `CREATE TABLE LIKE` and
-`RENAME TABLE` stay MySQL-only. `plugins/schema_e2e` must list the owned
+`RENAME TABLE` stay MySQL-only. Do not set `gorm:"type:double"` on codecov
+comparison floats; leave types unset so Postgres gets `double precision`. `plugins/schema_e2e` must list the owned
 plugins so the migration schema check covers them. GitHub reaction enrichment
 reads raw JSON with `JSON_EXTRACT` on MySQL and `convert_from(...::json)` on
 Postgres. The missing-CI lookup casts `pull_request_key` with `CHAR` on MySQL

@@ -42,14 +42,14 @@ type comparisonData20251119 struct {
 	FlagName     string `gorm:"primaryKey;type:varchar(100);index"`
 	// fields
 	ParentSha        string   `gorm:"type:varchar(64)"`
-	ModifiedCoverage float64  `gorm:"type:double"`
+	ModifiedCoverage float64
 	FilesChanged     int      `gorm:"type:int"`
 	MethodsCovered   int      `gorm:"type:int"`
 	MethodsTotal     int      `gorm:"type:int"`
 	LinesCovered     int      `gorm:"type:int"`
 	LinesTotal       int      `gorm:"type:int"`
 	LinesMissed      int      `gorm:"type:int"`
-	Patch            *float64 `gorm:"type:double"`
+	Patch            *float64
 }
 
 func (comparisonData20251119) TableName() string {
