@@ -46,6 +46,9 @@ import (
 	"gorm.io/gorm/schema"
 
 	ae "github.com/apache/devlake/plugins/ae/impl"
+	agentready "github.com/apache/devlake/plugins/agentready/impl"
+	aireview "github.com/apache/devlake/plugins/aireview/impl"
+	aisdlc "github.com/apache/devlake/plugins/aisdlc/impl"
 	argocd "github.com/apache/devlake/plugins/argocd/impl"
 	asana "github.com/apache/devlake/plugins/asana/impl"
 	azuredevops "github.com/apache/devlake/plugins/azuredevops_go/impl"
@@ -55,6 +58,7 @@ import (
 	circleci "github.com/apache/devlake/plugins/circleci/impl"
 	claudeCode "github.com/apache/devlake/plugins/claude_code/impl"
 	clickup "github.com/apache/devlake/plugins/clickup/impl"
+	codecov "github.com/apache/devlake/plugins/codecov/impl"
 	cursor "github.com/apache/devlake/plugins/cursor/impl"
 	customize "github.com/apache/devlake/plugins/customize/impl"
 	dora "github.com/apache/devlake/plugins/dora/impl"
@@ -71,6 +75,7 @@ import (
 	issueTrace "github.com/apache/devlake/plugins/issue_trace/impl"
 	jenkins "github.com/apache/devlake/plugins/jenkins/impl"
 	jira "github.com/apache/devlake/plugins/jira/impl"
+	jiraSnowflake "github.com/apache/devlake/plugins/jira_snowflake/impl"
 	kiro "github.com/apache/devlake/plugins/kiro/impl"
 	linear "github.com/apache/devlake/plugins/linear/impl"
 	linker "github.com/apache/devlake/plugins/linker/impl"
@@ -88,6 +93,7 @@ import (
 	teambition "github.com/apache/devlake/plugins/teambition/impl"
 	tempo "github.com/apache/devlake/plugins/tempo/impl"
 	testmo "github.com/apache/devlake/plugins/testmo/impl"
+	testregistry "github.com/apache/devlake/plugins/testregistry/impl"
 	trello "github.com/apache/devlake/plugins/trello/impl"
 	webhook "github.com/apache/devlake/plugins/webhook/impl"
 	youtrack "github.com/apache/devlake/plugins/youtrack/impl"
@@ -100,6 +106,9 @@ import (
 func allGoPlugins() []plugin.PluginMeta {
 	return []plugin.PluginMeta{
 		ae.AE{},
+		agentready.AgentReady{},
+		aireview.AiReview{},
+		aisdlc.Aisdlc{},
 		argocd.ArgoCD{},
 		asana.Asana{},
 		azuredevops.Azuredevops{},
@@ -109,6 +118,7 @@ func allGoPlugins() []plugin.PluginMeta {
 		circleci.Circleci{},
 		claudeCode.ClaudeCode{},
 		clickup.ClickUp{},
+		codecov.Codecov{},
 		cursor.Cursor{},
 		customize.Customize{},
 		dora.Dora{},
@@ -125,6 +135,7 @@ func allGoPlugins() []plugin.PluginMeta {
 		issueTrace.IssueTrace{},
 		jenkins.Jenkins{},
 		jira.Jira{},
+		jiraSnowflake.JiraSnowflake{},
 		kiro.Kiro{},
 		linear.Linear{},
 		linker.Linker{},
@@ -142,6 +153,7 @@ func allGoPlugins() []plugin.PluginMeta {
 		teambition.Teambition{},
 		tempo.Tempo{},
 		testmo.Testmo{},
+		testregistry.TestRegistry{},
 		trello.Trello{},
 		webhook.Webhook{},
 		youtrack.Youtrack{},

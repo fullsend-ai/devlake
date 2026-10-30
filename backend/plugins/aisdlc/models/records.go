@@ -32,7 +32,7 @@ type AisdlcRawFile struct {
 	FilePath     string `gorm:"type:varchar(1024)"`
 	CommitSha    string `gorm:"type:varchar(64)"`
 	BlobId       string `gorm:"type:varchar(64)"`
-	Body         string `gorm:"type:longtext"`
+	Body         string // Column type is left unset so MySQL uses longtext and Postgres uses text.
 	CollectedAt  time.Time
 }
 

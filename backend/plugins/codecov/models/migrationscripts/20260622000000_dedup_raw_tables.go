@@ -33,6 +33,11 @@ type dedupRawTables struct{}
 func dedupOneTable(basicRes context.BasicRes, table string) errors.Error {
 	db := basicRes.GetDal()
 	logger := basicRes.GetLogger()
+	if db.Dialect() != "mysql" {
+		// CREATE TABLE LIKE and RENAME TABLE are MySQL-only. Raw tables are
+		// created lazily, so a fresh non-MySQL database has nothing to dedup.
+		return nil
+	}
 
 	if !db.HasTable(table) {
 		logger.Info("[dedup-raw] table %s does not exist, skipping", table)

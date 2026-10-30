@@ -18,8 +18,6 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"strings"
-
 	"github.com/apache/devlake/core/context"
 	"github.com/apache/devlake/core/errors"
 	"github.com/apache/devlake/core/plugin"
@@ -36,9 +34,7 @@ func (*addProjectColumn) Up(basicRes context.BasicRes) errors.Error {
 	// MySQL returns error 1060 if column already exists, which is OK
 	err := db.Exec("ALTER TABLE _tool_testregistry_connections ADD COLUMN project VARCHAR(200)")
 	if err != nil {
-		// Check if error is "duplicate column" (MySQL error 1060)
-		errMsg := err.Error()
-		if strings.Contains(errMsg, "Duplicate column name") || strings.Contains(errMsg, "1060") {
+		if columnAlreadyPresent(err) {
 			// Column already exists, this is OK
 		} else {
 			// For other errors, return them

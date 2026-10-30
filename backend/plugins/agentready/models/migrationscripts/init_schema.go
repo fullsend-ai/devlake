@@ -103,7 +103,7 @@ type agentReadyAssessment20260604 struct {
 	DurationSeconds    float64   `gorm:"type:float"`
 	AssessedAt         time.Time `gorm:"index"`
 	CollectedAt        time.Time
-	RawJSON            string `gorm:"type:longtext"`
+	RawJSON            string
 }
 
 func (agentReadyAssessment20260604) TableName() string {

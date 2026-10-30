@@ -18,8 +18,6 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"strings"
-
 	"github.com/apache/devlake/core/context"
 	"github.com/apache/devlake/core/errors"
 	"github.com/apache/devlake/core/plugin"
@@ -35,8 +33,7 @@ func (*addCiToolFields) Up(basicRes context.BasicRes) errors.Error {
 	// Add ci_tool column
 	err := db.Exec("ALTER TABLE _tool_testregistry_connections ADD COLUMN ci_tool VARCHAR(50)")
 	if err != nil {
-		errMsg := err.Error()
-		if !strings.Contains(errMsg, "Duplicate column name") && !strings.Contains(errMsg, "1060") {
+		if !columnAlreadyPresent(err) {
 			return errors.Default.Wrap(err, "failed to add ci_tool column")
 		}
 	}
@@ -44,8 +41,7 @@ func (*addCiToolFields) Up(basicRes context.BasicRes) errors.Error {
 	// Add github_organization column
 	err = db.Exec("ALTER TABLE _tool_testregistry_connections ADD COLUMN github_organization VARCHAR(200)")
 	if err != nil {
-		errMsg := err.Error()
-		if !strings.Contains(errMsg, "Duplicate column name") && !strings.Contains(errMsg, "1060") {
+		if !columnAlreadyPresent(err) {
 			return errors.Default.Wrap(err, "failed to add github_organization column")
 		}
 	}
@@ -53,8 +49,7 @@ func (*addCiToolFields) Up(basicRes context.BasicRes) errors.Error {
 	// Add github_token column (for encrypted storage)
 	err = db.Exec("ALTER TABLE _tool_testregistry_connections ADD COLUMN github_token TEXT")
 	if err != nil {
-		errMsg := err.Error()
-		if !strings.Contains(errMsg, "Duplicate column name") && !strings.Contains(errMsg, "1060") {
+		if !columnAlreadyPresent(err) {
 			return errors.Default.Wrap(err, "failed to add github_token column")
 		}
 	}

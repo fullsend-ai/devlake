@@ -34,6 +34,12 @@ type fixCommitsPrimaryKey struct{}
 func (*fixCommitsPrimaryKey) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
 	logger := basicRes.GetLogger()
+	if db.Dialect() != "mysql" {
+		// CREATE TABLE LIKE, RENAME TABLE, and DATABASE() are MySQL-only.
+		// A fresh database gets the composite key from the earlier AutoMigrate.
+		logger.Info("[fix-commits-pk] skipping MySQL table rewrite on %s", db.Dialect())
+		return nil
+	}
 
 	// 1. Clean up leftover tables from a previous interrupted run (before any checks)
 	if dropErr := db.Exec(`DROP TABLE IF EXISTS _tool_codecov_commits_dedup`); dropErr != nil {

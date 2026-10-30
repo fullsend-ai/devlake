@@ -41,7 +41,7 @@ type AgentReadyAssessment struct {
 	DurationSeconds    float64   `gorm:"type:float"`
 	AssessedAt         time.Time `gorm:"index"`
 	CollectedAt        time.Time
-	RawJSON            string `gorm:"type:longtext"`
+	RawJSON            string // Column type is left unset so MySQL uses longtext and Postgres uses text.
 }
 
 func (AgentReadyAssessment) TableName() string {

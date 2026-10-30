@@ -94,7 +94,7 @@ type aisdlcRawFile20261020 struct {
 	FilePath     string `gorm:"type:varchar(1024)"`
 	CommitSha    string `gorm:"type:varchar(64)"`
 	BlobId       string `gorm:"type:varchar(64)"`
-	Body         string `gorm:"type:longtext"`
+	Body         string
 	CollectedAt  time.Time
 }
 

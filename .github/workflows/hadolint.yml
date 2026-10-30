@@ -45,6 +45,6 @@ jobs:
           docker run --rm \
             -v "$PWD:/work" \
             -w /work \
-            hadolint/hadolint:2.14.0 \
+            hadolint/hadolint:v2.14.0 \
             --config .hadolint.yaml \
             "${files[@]}"

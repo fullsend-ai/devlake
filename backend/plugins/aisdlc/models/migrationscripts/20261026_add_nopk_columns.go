@@ -21,6 +21,7 @@ import (
 	"fmt"
 
 	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
 	"github.com/apache/devlake/core/errors"
 	"github.com/apache/devlake/core/plugin"
 )
@@ -70,7 +71,7 @@ func (*addNoPKColumns) Up(basicRes context.BasicRes) errors.Error {
 			if db.HasColumn(table, column.name) {
 				continue
 			}
-			stmt := fmt.Sprintf("ALTER TABLE `%s` ADD COLUMN `%s` %s", table, column.name, column.sql)
+			stmt := fmt.Sprintf("ALTER TABLE %s ADD COLUMN %s %s", dal.QuoteIdent(db.Dialect(), table), dal.QuoteIdent(db.Dialect(), column.name), column.sql)
 			if err := db.Exec(stmt); err != nil {
 				return errors.Default.Wrap(err, "add "+table+"."+column.name)
 			}
@@ -80,7 +81,7 @@ func (*addNoPKColumns) Up(basicRes context.BasicRes) errors.Error {
 		}
 		if addedParams {
 			index := fmt.Sprintf("idx_%s_raw_data_params", table)
-			_ = db.Exec(fmt.Sprintf("CREATE INDEX `%s` ON `%s` (`_raw_data_params`)", index, table))
+			_ = db.Exec(fmt.Sprintf("CREATE INDEX %s ON %s (%s)", dal.QuoteIdent(db.Dialect(), index), dal.QuoteIdent(db.Dialect(), table), dal.QuoteIdent(db.Dialect(), "_raw_data_params")))
 		}
 	}
 	return nil

@@ -44,8 +44,8 @@ type aiReview20260127 struct {
 	AiTool           string    `gorm:"type:varchar(100)"`
 	AiToolUser       string    `gorm:"type:varchar(255)"`
 	ReviewId         string    `gorm:"type:varchar(255)"`
-	Body             string    `gorm:"type:longtext"`
-	Summary          string    `gorm:"type:text"`
+	Body             string
+	Summary          string `gorm:"type:text"`
 	CreatedDate      time.Time
 	UpdatedDate      *time.Time
 	RiskLevel        string `gorm:"type:varchar(50)"`

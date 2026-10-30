@@ -514,8 +514,10 @@ upstream into the mysql and postgresql files; do not restore the old file.
 **Rebase notes:** Put the `sql-mode` flag on the MySQL services and the three
 `GF_AUTH_ANONYMOUS_*` / `GF_AUTH_DISABLE_LOGIN_FORM` variables on the Grafana
 services. The GitHub Actions MySQL service in `.github/workflows/test-e2e.yml`
-uses the same `sql-mode`. e2e coverage composes
-`docker-compose-dev-mysql.yml` with `docker-compose-e2e-coverage.yml`.
+passes the same `sql-mode` as the container `command` (`options` are docker
+create flags). e2e coverage composes `docker-compose-dev-mysql.yml` with
+`docker-compose-e2e-coverage.yml`, and that overlay builds config-ui from
+`config-ui/Containerfile` with the committed Yarn 4 binary.
 
 ## SQL identifier quoting for Postgres
 
@@ -524,6 +526,7 @@ uses the same `sql-mode`. e2e coverage composes
 - `backend/core/models/migrationscripts/20260422000002_fix_ai_review_domain_columns.go`
 - `backend/plugins/aireview/`
 - `backend/plugins/agentready/api/`
+- `backend/plugins/schema_e2e/migration_schema_test.go`
 
 **Reason:** Owned-plugin queries quote `project_mapping.table` with MySQL
 backticks, and the aireview domain migration uses MySQL column types.
@@ -536,4 +539,8 @@ must not import each other.
 **Owner:** @fmuntean
 
 **Rebase notes:** Keep `QuoteIdent`. Do not put MySQL backticks back into raw
-SQL that runs on both e2e databases.
+SQL that runs on both e2e databases. Do not set `gorm:"type:longtext"` on
+owned-plugin models; leave the column type unset so MySQL uses longtext and
+Postgres uses text. Codecov dedup migrations that use `CREATE TABLE LIKE` and
+`RENAME TABLE` stay MySQL-only. `plugins/schema_e2e` must list the owned
+plugins so the migration schema check covers them.

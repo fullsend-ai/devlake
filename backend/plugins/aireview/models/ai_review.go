@@ -42,8 +42,8 @@ type AiReview struct {
 
 	// Review metadata
 	ReviewId    string    `gorm:"type:varchar(255)"` // Original review/comment ID from source
-	Body        string    `gorm:"type:longtext"`     // Full review body
-	Summary     string    `gorm:"type:text"`         // AI-generated summary if available
+	Body        string    // Full review body. Column type is left unset so MySQL uses longtext and Postgres uses text.
+	Summary     string    `gorm:"type:text"` // AI-generated summary if available
 	CreatedDate time.Time `gorm:"index"`
 	UpdatedDate *time.Time
 

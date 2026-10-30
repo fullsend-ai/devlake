@@ -23,9 +23,9 @@ WORKDIR /opt/app-root/src
 
 COPY . .
 
-# Use committed Yarn Berry binary (.yarn/releases/yarn-3.4.1.cjs via yarnPath)
-RUN node .yarn/releases/yarn-3.4.1.cjs install && \
-    node .yarn/releases/yarn-3.4.1.cjs build
+# Use the committed Yarn binary (.yarn/releases/yarn-4.17.0.cjs via yarnPath).
+RUN node .yarn/releases/yarn-4.17.0.cjs install && \
+    node .yarn/releases/yarn-4.17.0.cjs build
 
 FROM registry.access.redhat.com/ubi9/ubi-minimal@sha256:57c8151c51445a07e503dab9dc9211dc3cdeac9d45ed81a10954b7d770659b3b
 

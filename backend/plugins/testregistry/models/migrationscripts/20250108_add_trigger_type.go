@@ -35,8 +35,7 @@ func (*addTriggerType) Up(basicRes context.BasicRes) errors.Error {
 	// Add trigger_type column to ci_test_jobs table
 	err := db.Exec("ALTER TABLE ci_test_jobs ADD COLUMN trigger_type VARCHAR(50)")
 	if err != nil {
-		errMsg := err.Error()
-		if !strings.Contains(errMsg, "Duplicate column name") && !strings.Contains(errMsg, "1060") {
+		if !columnAlreadyPresent(err) {
 			return errors.Default.Wrap(err, "failed to add trigger_type column")
 		}
 	}

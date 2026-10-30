@@ -18,9 +18,11 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/apache/devlake/core/context"
+	"github.com/apache/devlake/core/dal"
 	"github.com/apache/devlake/core/errors"
 	"github.com/apache/devlake/core/plugin"
 )
@@ -32,63 +34,56 @@ type renameOciToQuay struct{}
 func (*renameOciToQuay) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
 
-	// Rename column in connections table from oci_artifact_url to quay_organization
-	// MySQL returns error 1054 if column doesn't exist, which is OK
-	err := db.Exec("ALTER TABLE _tool_testregistry_connections CHANGE COLUMN oci_artifact_url quay_organization VARCHAR(200)")
-	if err != nil {
-		errMsg := err.Error()
-		// Check if error is "unknown column" (MySQL error 1054) or "duplicate column" (1060)
-		if strings.Contains(errMsg, "Unknown column") || strings.Contains(errMsg, "1054") {
-			// Column doesn't exist, try to add it instead
-			err2 := db.Exec("ALTER TABLE _tool_testregistry_connections ADD COLUMN quay_organization VARCHAR(200)")
-			if err2 != nil {
-				errMsg2 := err2.Error()
-				if strings.Contains(errMsg2, "Duplicate column name") || strings.Contains(errMsg2, "1060") {
-					// Column already exists, this is OK
-				} else {
-					return errors.Default.Wrap(err2, "failed to add quay_organization column")
-				}
-			}
-		} else if strings.Contains(errMsg, "Duplicate column name") || strings.Contains(errMsg, "1060") {
-			// Column already exists with new name, this is OK
-		} else {
-			// For other errors, return them
-			return errors.Default.Wrap(err, "failed to rename oci_artifact_url to quay_organization")
-		}
+	if err := renameOrAddColumn(db, "_tool_testregistry_connections", "oci_artifact_url", "quay_organization", "VARCHAR(200)"); err != nil {
+		return err
+	}
+	if err := renameOrAddColumn(db, "_tool_testregistry_scopes", "repository_full_name", "full_name", "VARCHAR(500)"); err != nil {
+		return err
+	}
+	if err := renameOrAddColumn(db, "_tool_testregistry_scopes", "repository_name", "name", "VARCHAR(500)"); err != nil {
+		return err
 	}
 
-	// Update scopes table: rename repository_full_name to full_name and repository_name to name
-	// First check if the table exists and has data to migrate
-	// Step 1: Handle repository_full_name -> full_name
-	err = db.Exec("ALTER TABLE _tool_testregistry_scopes CHANGE COLUMN repository_full_name full_name VARCHAR(500)")
-	if err != nil {
-		errMsg := err.Error()
-		if strings.Contains(errMsg, "Unknown column") || strings.Contains(errMsg, "1054") {
-			// Column doesn't exist, check if full_name already exists, if not add it
-			// A duplicate column is success. Any other add failure is ignored so a later step can still run.
-			_ = db.Exec("ALTER TABLE _tool_testregistry_scopes ADD COLUMN full_name VARCHAR(500)")
-		}
-	}
-
-	// Step 2: Handle repository_name -> name
-	err = db.Exec("ALTER TABLE _tool_testregistry_scopes CHANGE COLUMN repository_name name VARCHAR(500)")
-	if err != nil {
-		errMsg := err.Error()
-		if strings.Contains(errMsg, "Unknown column") || strings.Contains(errMsg, "1054") {
-			// Column doesn't exist, check if name already exists, if not add it
-			// A duplicate column is success. Any other add failure is ignored so a later step can still run.
-			_ = db.Exec("ALTER TABLE _tool_testregistry_scopes ADD COLUMN name VARCHAR(500)")
-		}
-	}
-
-	// Step 3: Handle legacy oci_artifact_url column if it exists (copy data to full_name if full_name is empty)
-	// First check if oci_artifact_url column exists and copy data if needed
-	// We'll try to copy data, but if the column doesn't exist, that's fine
+	// Copy a legacy scope column when it is still present, then drop it.
 	_ = db.Exec("UPDATE _tool_testregistry_scopes SET full_name = oci_artifact_url WHERE (full_name IS NULL OR full_name = '') AND oci_artifact_url IS NOT NULL AND oci_artifact_url != ''")
-	// Then try to drop the old column (ignore errors if it doesn't exist)
 	_ = db.Exec("ALTER TABLE _tool_testregistry_scopes DROP COLUMN oci_artifact_url")
 
 	return nil
+}
+
+// renameOrAddColumn renames oldName to newName, or adds newName when the old
+// column is already gone. MySQL uses CHANGE COLUMN; Postgres uses RENAME COLUMN.
+func renameOrAddColumn(db dal.Dal, table, oldName, newName, colType string) errors.Error {
+	if db.HasColumn(table, oldName) {
+		var stmt string
+		if db.Dialect() == "postgres" {
+			stmt = fmt.Sprintf("ALTER TABLE %s RENAME COLUMN %s TO %s", table, oldName, newName)
+		} else {
+			stmt = fmt.Sprintf("ALTER TABLE %s CHANGE COLUMN %s %s %s", table, oldName, newName, colType)
+		}
+		if err := db.Exec(stmt); err != nil {
+			return errors.Default.Wrap(err, "rename "+oldName+" to "+newName)
+		}
+		return nil
+	}
+	if db.HasColumn(table, newName) {
+		return nil
+	}
+	if err := db.Exec(fmt.Sprintf("ALTER TABLE %s ADD COLUMN %s %s", table, newName, colType)); err != nil && !columnAlreadyPresent(err) {
+		return errors.Default.Wrap(err, "add "+newName)
+	}
+	return nil
+}
+
+// columnAlreadyPresent reports a duplicate-column error from MySQL or Postgres.
+func columnAlreadyPresent(err error) bool {
+	if err == nil {
+		return false
+	}
+	msg := err.Error()
+	return strings.Contains(msg, "Duplicate column name") ||
+		strings.Contains(msg, "1060") ||
+		strings.Contains(msg, "already exists")
 }
 
 func (*renameOciToQuay) Version() uint64 {

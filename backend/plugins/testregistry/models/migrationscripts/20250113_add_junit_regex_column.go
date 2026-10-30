@@ -18,8 +18,6 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"strings"
-
 	"github.com/apache/devlake/core/context"
 	"github.com/apache/devlake/core/errors"
 	"github.com/apache/devlake/core/plugin"
@@ -35,8 +33,7 @@ func (*addJUnitRegexColumn) Up(basicRes context.BasicRes) errors.Error {
 	// Add junit_regex column
 	err := db.Exec("ALTER TABLE _tool_testregistry_connections ADD COLUMN junit_regex VARCHAR(500)")
 	if err != nil {
-		errMsg := err.Error()
-		if !strings.Contains(errMsg, "Duplicate column name") && !strings.Contains(errMsg, "1060") {
+		if !columnAlreadyPresent(err) {
 			return errors.Default.Wrap(err, "failed to add junit_regex column")
 		}
 	}
