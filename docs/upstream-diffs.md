@@ -175,6 +175,37 @@ cicd_pipeline_commits` even though `cicd_pipeline_commits` already exists.
 **Rebase notes:** Keep the `HasTable` / `HasColumn` guards. Do not restore an
 unconditional `RenameTable`.
 
+## Framework migration: skip cicd_pipeline_commits repo rename when applied
+
+**Files:**
+- `backend/core/models/migrationscripts/20230406_rename_cicd_pipeline_commits_repo_url.go`
+
+**Reason:** Domain AutoMigrate on the shared e2e database creates
+`cicd_pipeline_commits` with `repo_url` before this migration runs, so
+`RENAME repo TO repo_url` fails on Postgres when `repo` is absent.
+
+**Upstream status:** Pending — idempotent guard.
+**Upstream PR:** none
+**Owner:** @fmuntean
+
+**Rebase notes:** Rename only when column `repo` still exists.
+
+## Framework migration: keep cicd_scope_id indexable on shared e2e DB
+
+**Files:**
+- `backend/core/models/migrationscripts/20221207_add_cicd_scope_drop_builds_jobs.go`
+
+**Reason:** When `cicd_tasks` already exists from plugin e2e AutoMigrate, this
+script's partial AutoMigrate used an untyped `CicdScopeId`, which GORM widened
+to `longtext` and broke the indexed column on MySQL (Error 1170).
+
+**Upstream status:** Pending — migration snapshot should match domain types.
+**Upstream PR:** none
+**Owner:** @fmuntean
+
+**Rebase notes:** Keep `gorm:"index;type:varchar(255)"` on `CicdScopeId` in
+the 20221107 snapshot structs.
+
 ## jira: cleanup stale board associations after tickets leave/change board
 
 **Files:**
