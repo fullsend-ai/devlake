@@ -40,11 +40,11 @@ func (cicdPipelineRelationship20220905) TableName() string {
 
 func (*modifyCicdPipeline) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
-	err := db.DropColumns("cicd_pipelines", "commit_sha", "branch", "repo")
+	err := dropColumnsIfExist(db, "cicd_pipelines", "commit_sha", "branch", "repo")
 	if err != nil {
 		return err
 	}
-	err = db.RenameColumn("cicd_pipeline_repos", "repo_url", "repo")
+	err = renameColumnIfAbsent(db, "cicd_pipeline_repos", "repo_url", "repo")
 	if err != nil {
 		return err
 	}

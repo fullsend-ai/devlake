@@ -50,15 +50,11 @@ func (*renameTasksToPlan) Up(basicRes context.BasicRes) errors.Error {
 	if err != nil {
 		return err
 	}
-	err = db.RenameColumn(blueprint20220622{}.TableName(), "tasks", "plan")
+	err = renameColumnIfAbsent(db, blueprint20220622{}.TableName(), "tasks", "plan")
 	if err != nil {
 		return err
 	}
-	err = db.RenameColumn(pipeline20220622{}.TableName(), "tasks", "plan")
-	if err != nil {
-		return err
-	}
-	return nil
+	return renameColumnIfAbsent(db, pipeline20220622{}.TableName(), "tasks", "plan")
 }
 
 func (*renameTasksToPlan) Version() uint64 {

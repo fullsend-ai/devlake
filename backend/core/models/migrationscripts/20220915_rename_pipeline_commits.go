@@ -46,15 +46,15 @@ func (*renamePipelineCommits) Up(basicRes context.BasicRes) errors.Error {
 	hasCommits := db.HasTable("cicd_pipeline_commits")
 	hasRepos := db.HasTable("cicd_pipeline_repos")
 	if hasRepos && !hasCommits {
-		if err := db.RenameTable("cicd_pipeline_repos", "cicd_pipeline_commits"); err != nil {
+		if err := renameTableIfAbsent(db, "cicd_pipeline_repos", "cicd_pipeline_commits"); err != nil {
 			return err
 		}
 		hasCommits = true
 	}
 	// Plugin e2e tests AutoMigrate domain tables without recording migrations,
 	// so cicd_pipeline_commits may already exist when this script runs.
-	if hasCommits && db.HasColumn("cicd_pipeline_commits", "id") {
-		if err := db.RenameColumn("cicd_pipeline_commits", "id", "pipeline_id"); err != nil {
+	if hasCommits {
+		if err := renameColumnIfAbsent(db, "cicd_pipeline_commits", "id", "pipeline_id"); err != nil {
 			return err
 		}
 	}

@@ -27,7 +27,7 @@ type renameProjectIssueMetrics struct{}
 
 func (u *renameProjectIssueMetrics) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
-	return db.RenameTable(archived.ProjectIssueMetric{}.TableName(), "project_incident_deployment_relationships")
+	return renameTableIfAbsent(db, archived.ProjectIssueMetric{}.TableName(), "project_incident_deployment_relationships")
 }
 
 func (*renameProjectIssueMetrics) Version() uint64 {

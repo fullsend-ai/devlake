@@ -35,11 +35,10 @@ func (*renameDeploymentIdForPrProjectMetric) Up(basicRes context.BasicRes) error
 	hasOld := db.HasColumn("project_pr_metrics", "deployment_id")
 	hasNew := db.HasColumn("project_pr_metrics", "deployment_commit_id")
 	if hasOld && !hasNew {
-		return db.RenameColumn("project_pr_metrics", "deployment_id", "deployment_commit_id")
+		return renameColumnIfAbsent(db, "project_pr_metrics", "deployment_id", "deployment_commit_id")
 	}
 	if hasOld && hasNew {
-		// Domain AutoMigrate may create deployment_commit_id before this rename runs.
-		return db.DropColumns("project_pr_metrics", "deployment_id")
+		return dropColumnsIfExist(db, "project_pr_metrics", "deployment_id")
 	}
 	return nil
 }

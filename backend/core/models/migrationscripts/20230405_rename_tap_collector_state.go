@@ -29,11 +29,7 @@ type renameCollectorTapStateTable struct{}
 
 func (*renameCollectorTapStateTable) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
-	err := db.RenameTable("_devlake_collector_state", "_devlake_collector_tap_state")
-	if err != nil {
-		return err
-	}
-	return nil
+	return renameTableIfAbsent(db, "_devlake_collector_state", "_devlake_collector_tap_state")
 }
 
 func (*renameCollectorTapStateTable) Version() uint64 {

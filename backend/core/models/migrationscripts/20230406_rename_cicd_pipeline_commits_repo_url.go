@@ -33,7 +33,7 @@ func (*renameCicdPipelineRepoToRepoUrl) Up(basicRes context.BasicRes) errors.Err
 		return nil
 	}
 	if db.HasColumn("cicd_pipeline_commits", "repo") {
-		return db.RenameColumn("cicd_pipeline_commits", "repo", "repo_url")
+		return renameColumnIfAbsent(db, "cicd_pipeline_commits", "repo", "repo_url")
 	}
 	return nil
 }

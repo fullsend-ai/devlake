@@ -239,6 +239,40 @@ framework rename runs.
 **Rebase notes:** Rename only when `finished_commits_diffs` exists and
 `_tool_refdiff_finished_commits_diffs` does not.
 
+## Framework migrations: idempotent rename/drop helpers for shared e2e DB
+
+**Files:**
+- `backend/core/models/migrationscripts/idempotent_rename.go` (new)
+- `backend/core/models/migrationscripts/20220505_rename_pipeline_step_to_stage.go`
+- `backend/core/models/migrationscripts/20220622_rename_tasks_to_plan.go`
+- `backend/core/models/migrationscripts/20220729_rename_columns_of_pull_request_issues.go`
+- `backend/core/models/migrationscripts/20220826_rename_columns_of_pr_comment_issue_comment.go`
+- `backend/core/models/migrationscripts/20220905_modify_cicd_pipeline.go`
+- `backend/core/models/migrationscripts/20220915_rename_pipeline_commits.go`
+- `backend/core/models/migrationscripts/20221109_rename_project_metrics.go`
+- `backend/core/models/migrationscripts/20221111_add_project_pr_metric.go`
+- `backend/core/models/migrationscripts/20221120_add_project_issue_metric.go`
+- `backend/core/models/migrationscripts/20230405_rename_tap_collector_state.go`
+- `backend/core/models/migrationscripts/20230406_rename_cicd_pipeline_commits_repo_url.go`
+- `backend/core/models/migrationscripts/20230416_rename_project_pr_metrict_deployment_id.go`
+- `backend/core/models/migrationscripts/20230516_rename_finished_commits_diffs.go`
+- `backend/core/models/migrationscripts/20230223_remove_createddateafter_from_collector_state.go`
+- `backend/core/models/migrationscripts/20231103_remove_position_from_pull_request_comments.go`
+
+**Reason:** Plugin e2e AutoMigrate final domain/tool table and column names on the
+shared CI database without `_devlake_migration_history`. When testregistry starts
+DevLake, framework migrations replay renames and drops against schema that is
+already current (e.g. `project_issue_metrics` →
+`project_incident_deployment_relationships`).
+
+**Upstream status:** Pending — shared helpers plus guarded call sites.
+**Upstream PR:** none
+**Owner:** @fmuntean
+
+**Rebase notes:** Keep `renameTableIfAbsent`, `renameColumnIfAbsent`, and
+`dropColumnsIfExist`; do not restore unconditional `RenameTable` /
+`RenameColumn` / `DropColumns` in these scripts.
+
 ## jira: cleanup stale board associations after tickets leave/change board
 
 **Files:**
