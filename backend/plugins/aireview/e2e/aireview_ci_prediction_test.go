@@ -74,6 +74,9 @@ func TestCalculateFailurePredictions(t *testing.T) {
 
 	scopeConfig := models.GetDefaultScopeConfig()
 	scopeConfig.WarningThreshold = 50
+	// The fixtures mark flaky-integration as a periodic failure. That exclusion
+	// is off unless the scope asks for it.
+	scopeConfig.ExcludeFlakyTests = true
 
 	taskData := &tasks.AiReviewTaskData{
 		Options: &tasks.AiReviewOptions{

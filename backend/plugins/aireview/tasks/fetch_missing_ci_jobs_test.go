@@ -314,6 +314,7 @@ func TestFindMissingPRs(t *testing.T) {
 
 	t.Run("success with org/repo name", func(t *testing.T) {
 		mockDal := new(mockdal.Dal)
+		mockDal.On("Dialect").Return("mysql")
 		callCount := 0
 		mockDal.On("All", mock.Anything, mock.Anything).Return(nil).Run(func(args mock.Arguments) {
 			callCount++
@@ -345,6 +346,7 @@ func TestFindMissingPRs(t *testing.T) {
 
 	t.Run("repo name without slash", func(t *testing.T) {
 		mockDal := new(mockdal.Dal)
+		mockDal.On("Dialect").Return("mysql")
 		callCount := 0
 		mockDal.On("All", mock.Anything, mock.Anything).Return(nil).Run(func(args mock.Arguments) {
 			callCount++
@@ -394,6 +396,7 @@ func TestFindMissingPRs(t *testing.T) {
 
 	t.Run("missing PRs query error", func(t *testing.T) {
 		mockDal := new(mockdal.Dal)
+		mockDal.On("Dialect").Return("mysql")
 		callCount := 0
 		mockDal.On("All", mock.Anything, mock.Anything).Return(nil).Run(func(args mock.Arguments) {
 			callCount++

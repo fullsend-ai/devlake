@@ -141,7 +141,22 @@ If upstream changes Makefile image targets or Dockerfiles, re-point builds at
 `Containerfile` and keep DEPRECATED headers until the Debian files are deleted.
 
 (`backend/Containerfile` and `config-ui/Containerfile` are fork additions, not
-tracked here.)
+tracked here.) `backend/Containerfile` must build libgit2 1.5.0. git2go v34
+rejects 1.3.2, which breaks the coverage image when it compiles gitextractor.
+
+## Hadolint shell quoting
+
+**Files:**
+- `backend/Dockerfile.local`
+
+**Reason:** The Dockerfile lint job fails at warning level. `make -j$(nproc)`
+trips shellcheck SC2046.
+
+**Upstream status:** Pending.
+**Upstream PR:** none
+**Owner:** @fmuntean
+
+**Rebase notes:** Keep `make -j"$(nproc)"`. Do not drop the quotes.
 
 ## jira: cleanup stale board associations after tickets leave/change board
 

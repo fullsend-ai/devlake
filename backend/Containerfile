@@ -87,10 +87,10 @@ RUN mkdir -p /tmp/build && cd /tmp/build && \
     make -j"$(nproc)" install && \
     cd / && rm -rf /tmp/build
 
-# Build libgit2 against native UBI libraries (same version as Dockerfile.konflux)
+# git2go v34 accepts only libgit2 1.5.0.
 RUN mkdir -p /tmp/build && cd /tmp/build && \
-    wget https://github.com/libgit2/libgit2/archive/refs/tags/v1.3.2.tar.gz -O - | tar -xz && \
-    cd libgit2-1.3.2 && \
+    wget https://github.com/libgit2/libgit2/archive/refs/tags/v1.5.0.tar.gz -O - | tar -xz && \
+    cd libgit2-1.5.0 && \
     mkdir build && cd build && \
     cmake .. \
         -DBUILD_SHARED_LIBS=ON \
