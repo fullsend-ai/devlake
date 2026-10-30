@@ -41,14 +41,14 @@ type comparisonData20251119 struct {
 	CommitSha    string `gorm:"primaryKey;type:varchar(64);index"`
 	FlagName     string `gorm:"primaryKey;type:varchar(100);index"`
 	// fields
-	ParentSha        string   `gorm:"type:varchar(64)"`
+	ParentSha        string `gorm:"type:varchar(64)"`
 	ModifiedCoverage float64
-	FilesChanged     int      `gorm:"type:int"`
-	MethodsCovered   int      `gorm:"type:int"`
-	MethodsTotal     int      `gorm:"type:int"`
-	LinesCovered     int      `gorm:"type:int"`
-	LinesTotal       int      `gorm:"type:int"`
-	LinesMissed      int      `gorm:"type:int"`
+	FilesChanged     int `gorm:"type:int"`
+	MethodsCovered   int `gorm:"type:int"`
+	MethodsTotal     int `gorm:"type:int"`
+	LinesCovered     int `gorm:"type:int"`
+	LinesTotal       int `gorm:"type:int"`
+	LinesMissed      int `gorm:"type:int"`
 	Patch            *float64
 }
 

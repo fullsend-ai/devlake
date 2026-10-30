@@ -28,19 +28,19 @@ import (
 
 // ComparisonData stores comparison results for linking to commit coverage per flag
 type ComparisonData struct {
-	common.NoPKModel          // Includes CreatedAt, UpdatedAt, and RawDataOrigin
-	ConnectionId     uint64   `gorm:"primaryKey;type:bigint"`
-	RepoId           string   `gorm:"primaryKey;type:varchar(200);index"`
-	CommitSha        string   `gorm:"primaryKey;type:varchar(64);index"`
-	FlagName         string   `gorm:"primaryKey;type:varchar(100);index"`
-	ParentSha        string   `gorm:"type:varchar(64)"`
+	common.NoPKModel        // Includes CreatedAt, UpdatedAt, and RawDataOrigin
+	ConnectionId     uint64 `gorm:"primaryKey;type:bigint"`
+	RepoId           string `gorm:"primaryKey;type:varchar(200);index"`
+	CommitSha        string `gorm:"primaryKey;type:varchar(64);index"`
+	FlagName         string `gorm:"primaryKey;type:varchar(100);index"`
+	ParentSha        string `gorm:"type:varchar(64)"`
 	ModifiedCoverage float64
 	FilesChanged     int      `gorm:"type:int"`
 	MethodsCovered   int      `gorm:"type:int"`
 	MethodsTotal     int      `gorm:"type:int"`
-	LinesCovered     int      `gorm:"type:int"`    // Lines covered in modified code
-	LinesTotal       int      `gorm:"type:int"`    // Total lines in modified code
-	LinesMissed      int      `gorm:"type:int"`    // Lines missed in modified code
+	LinesCovered     int      `gorm:"type:int"` // Lines covered in modified code
+	LinesTotal       int      `gorm:"type:int"` // Total lines in modified code
+	LinesMissed      int      `gorm:"type:int"` // Lines missed in modified code
 	Patch            *float64 // Patch coverage from compare API (can be null)
 }
 
