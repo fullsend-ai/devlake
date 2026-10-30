@@ -36,6 +36,7 @@ jobs:
       run: |
         cp env.example .env
         sed -i 's|127.0.0.1:3306|mysql:3306|g' .env
+        sed -i 's/^ENCRYPTION_SECRET=$/ENCRYPTION_SECRET=e2e-test-secret/' .env
 
     - name: Start services with coverage
       run: |

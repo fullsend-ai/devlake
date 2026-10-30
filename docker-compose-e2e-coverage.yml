@@ -45,6 +45,7 @@ services:
     environment:
       COVERAGE_PORT: "9095"
       DB_URL: mysql://merico:merico@mysql:3306/lake?charset=utf8mb4&parseTime=True&loc=UTC
+      ENCRYPTION_SECRET: e2e-test-secret
       FORCE_MIGRATION: "true"
       AUTH_ENABLED: "false"
 

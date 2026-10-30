@@ -671,7 +671,9 @@ create flags). e2e coverage composes `docker-compose-dev-mysql.yml` with
 `docker-compose-e2e-coverage.yml`, and that overlay builds config-ui from
 `config-ui/Containerfile` with the committed Yarn 4 binary. The builder base
 is `ubi9/nodejs-24` because the Vite/Rolldown build imports `util.styleText`,
-which Node 18 does not provide.
+which Node 18 does not provide. Set `ENCRYPTION_SECRET` in
+`docker-compose-e2e-coverage.yml` and in `.github/workflows/test-e2e-coverage.yml`
+(same value as `test-e2e.yml`).
 
 ## SQL identifier quoting for Postgres
 
