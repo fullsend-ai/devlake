@@ -161,7 +161,7 @@ func TestEnrichGitlabReviewReactions(t *testing.T) {
 	// Create minimal _tool_gitlab_connections and insert connection pointing at mock server.
 	err = dataflowTester.Dal.Exec(`
 		CREATE TABLE IF NOT EXISTS _tool_gitlab_connections (
-			id BIGINT UNSIGNED PRIMARY KEY,
+			id BIGINT PRIMARY KEY,
 			endpoint VARCHAR(255),
 			token TEXT
 		)`)
@@ -176,7 +176,7 @@ func TestEnrichGitlabReviewReactions(t *testing.T) {
 	// Create minimal _tool_gitlab_merge_requests and insert test MR.
 	err = dataflowTester.Dal.Exec(`
 		CREATE TABLE IF NOT EXISTS _tool_gitlab_merge_requests (
-			connection_id BIGINT UNSIGNED,
+			connection_id BIGINT,
 			gitlab_id INT,
 			iid INT,
 			project_id INT,
@@ -193,7 +193,7 @@ func TestEnrichGitlabReviewReactions(t *testing.T) {
 	// Create minimal _tool_gitlab_mr_comments and insert the note under test.
 	err = dataflowTester.Dal.Exec(`
 		CREATE TABLE IF NOT EXISTS _tool_gitlab_mr_comments (
-			connection_id BIGINT UNSIGNED,
+			connection_id BIGINT,
 			gitlab_id INT,
 			merge_request_id INT,
 			merge_request_iid INT,

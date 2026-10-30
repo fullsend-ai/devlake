@@ -197,9 +197,18 @@ func findMissingPRs(db dal.Dal, repoId string, cutoff time.Time) ([]missingPR, e
 		repoShort = repoShort[i+1:]
 	}
 
+	// pull_request_key is an integer. CAST AS CHAR is MySQL; on Postgres it
+	// becomes character(1) and cannot compare with bigint.
+	keyExpr := "CAST(pr.pull_request_key AS CHAR)"
+	matchExpr := "CAST(j.pull_request_number AS CHAR) = pr.pull_request_key"
+	if db.Dialect() == "postgres" {
+		keyExpr = "CAST(pr.pull_request_key AS TEXT)"
+		matchExpr = "CAST(j.pull_request_number AS TEXT) = CAST(pr.pull_request_key AS TEXT)"
+	}
+
 	var rawRows []missingPRRow
 	err := db.All(&rawRows,
-		dal.Select("DISTINCT pr.pull_request_key, r.name AS repo_name"),
+		dal.Select("DISTINCT "+keyExpr+" AS pull_request_key, r.name AS repo_name"),
 		dal.From("_tool_aireview_reviews ar"),
 		dal.Join("JOIN pull_requests pr ON ar.pull_request_id = pr.id"),
 		dal.Join("JOIN repos r ON ar.repo_id = r.id"),
@@ -208,7 +217,7 @@ func findMissingPRs(db dal.Dal, repoId string, cutoff time.Time) ([]missingPR, e
 			AND pr.created_date >= ?
 			AND NOT EXISTS (
 				SELECT 1 FROM ci_test_jobs j
-				WHERE CAST(j.pull_request_number AS CHAR) = pr.pull_request_key
+				WHERE `+matchExpr+`
 				  AND j.repository = ?
 				  AND j.trigger_type = 'pull_request'
 			)`, repoId, cutoff, repoShort),

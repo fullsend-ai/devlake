@@ -517,7 +517,9 @@ services. The GitHub Actions MySQL service in `.github/workflows/test-e2e.yml`
 passes the same `sql-mode` as the container `command` (`options` are docker
 create flags). e2e coverage composes `docker-compose-dev-mysql.yml` with
 `docker-compose-e2e-coverage.yml`, and that overlay builds config-ui from
-`config-ui/Containerfile` with the committed Yarn 4 binary.
+`config-ui/Containerfile` with the committed Yarn 4 binary. The builder base
+is `ubi9/nodejs-24` because the Vite/Rolldown build imports `util.styleText`,
+which Node 18 does not provide.
 
 ## SQL identifier quoting for Postgres
 
@@ -543,4 +545,7 @@ SQL that runs on both e2e databases. Do not set `gorm:"type:longtext"` on
 owned-plugin models; leave the column type unset so MySQL uses longtext and
 Postgres uses text. Codecov dedup migrations that use `CREATE TABLE LIKE` and
 `RENAME TABLE` stay MySQL-only. `plugins/schema_e2e` must list the owned
-plugins so the migration schema check covers them.
+plugins so the migration schema check covers them. GitHub reaction enrichment
+reads raw JSON with `JSON_EXTRACT` on MySQL and `convert_from(...::json)` on
+Postgres. The missing-CI lookup casts `pull_request_key` with `CHAR` on MySQL
+and `TEXT` on Postgres (`CAST AS CHAR` is `character(1)` there).

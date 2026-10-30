@@ -42,9 +42,12 @@ jobs:
             echo "No Dockerfiles found"
             exit 0
           fi
+          # The image sets CMD, not ENTRYPOINT. Passing flags without
+          # --entrypoint replaces CMD and tries to exec "--config".
           docker run --rm \
             -v "$PWD:/work" \
             -w /work \
+            --entrypoint /bin/hadolint \
             hadolint/hadolint:v2.14.0 \
             --config .hadolint.yaml \
             "${files[@]}"

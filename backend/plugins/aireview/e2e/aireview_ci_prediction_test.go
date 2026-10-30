@@ -101,6 +101,7 @@ func TestCalculateFailurePredictions(t *testing.T) {
 	tester.ImportCsvIntoTabler("./raw_tables/ci_repos.csv", &repoRow{})
 	tester.ImportCsvIntoTabler("./raw_tables/ci_test_jobs.csv", &ciTestJob{})
 	tester.ImportCsvIntoTabler("./raw_tables/ci_test_cases.csv", &ciTestCase{})
+	anchorCIFixtures(t, tester.Dal)
 
 	// Run extraction then prediction.
 	tester.Subtask(tasks.ExtractAiReviewsMeta, taskData)

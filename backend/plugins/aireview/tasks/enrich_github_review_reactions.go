@@ -135,7 +135,7 @@ func EnrichGithubReviewReactions(taskCtx plugin.SubTaskContext) errors.Error {
 			// We extract $.reactions as a full JSON object and parse in Go to avoid
 			// MySQL JSON path issues with special-character keys like "+1" and "-1"
 			rows, err := db.Cursor(
-				dal.Select("id, JSON_EXTRACT(CONVERT(data USING utf8mb4), '$.reactions') as reactions_json"),
+				dal.Select(githubReactionsSelect(db.Dialect())),
 				dal.From(rawTable),
 				dal.Where("id IN (?)", batch),
 			)
@@ -186,4 +186,14 @@ func EnrichGithubReviewReactions(taskCtx plugin.SubTaskContext) errors.Error {
 
 	logger.Info("Reaction enrichment complete: %d reviews enriched, %d had reactions", totalEnriched, totalWithReactions)
 	return nil
+}
+
+// githubReactionsSelect reads $.reactions from a raw data blob.
+// MySQL stores the blob as a binary string. Postgres stores it as bytea, and
+// JSON_EXTRACT / CONVERT USING are rejected there.
+func githubReactionsSelect(dialect string) string {
+	if dialect == "postgres" {
+		return "id, (convert_from(data, 'UTF8')::json -> 'reactions')::text AS reactions_json"
+	}
+	return "id, JSON_EXTRACT(CONVERT(data USING utf8mb4), '$.reactions') AS reactions_json"
 }

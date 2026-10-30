@@ -125,6 +125,7 @@ func TestFetchMissingCiJobs(t *testing.T) {
 	tester.ImportCsvIntoTabler("./raw_tables/ci_pull_requests.csv", &code.PullRequest{})
 	tester.ImportCsvIntoTabler("./raw_tables/ci_pull_request_comments.csv", &code.PullRequestComment{})
 	tester.ImportCsvIntoTabler("./raw_tables/ci_repos.csv", &repoRow{})
+	anchorCIFixtures(t, tester.Dal)
 
 	// Step 1: extract AI reviews.
 	tester.Subtask(tasks.ExtractAiReviewsMeta, taskData)
