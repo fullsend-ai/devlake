@@ -223,6 +223,22 @@ because the target column already exists.
 **Rebase notes:** Rename only when `deployment_id` exists and
 `deployment_commit_id` does not; drop `deployment_id` when both exist.
 
+## Framework migration: skip finished_commits_diffs rename when applied
+
+**Files:**
+- `backend/core/models/migrationscripts/20230516_rename_finished_commits_diffs.go`
+
+**Reason:** Refdiff e2e and the refdiff tool model AutoMigrate
+`_tool_refdiff_finished_commits_diffs` on the shared e2e database before this
+framework rename runs.
+
+**Upstream status:** Pending — idempotent guard.
+**Upstream PR:** none
+**Owner:** @fmuntean
+
+**Rebase notes:** Rename only when `finished_commits_diffs` exists and
+`_tool_refdiff_finished_commits_diffs` does not.
+
 ## jira: cleanup stale board associations after tickets leave/change board
 
 **Files:**

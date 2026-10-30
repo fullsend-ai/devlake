@@ -29,9 +29,10 @@ type renameFinishedCommitsDiffs struct{}
 
 func (*renameFinishedCommitsDiffs) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
-	err := db.RenameTable("finished_commits_diffs", "_tool_refdiff_finished_commits_diffs")
-	if err != nil {
-		return err
+	hasNew := db.HasTable("_tool_refdiff_finished_commits_diffs")
+	hasOld := db.HasTable("finished_commits_diffs")
+	if hasOld && !hasNew {
+		return db.RenameTable("finished_commits_diffs", "_tool_refdiff_finished_commits_diffs")
 	}
 	return nil
 }
