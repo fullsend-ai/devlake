@@ -258,12 +258,14 @@ framework rename runs.
 - `backend/core/models/migrationscripts/20230516_rename_finished_commits_diffs.go`
 - `backend/core/models/migrationscripts/20230223_remove_createddateafter_from_collector_state.go`
 - `backend/core/models/migrationscripts/20231103_remove_position_from_pull_request_comments.go`
+- `backend/core/models/migrationscripts/20260422000002_fix_ai_review_domain_columns.go`
 
 **Reason:** Plugin e2e AutoMigrate final domain/tool table and column names on the
 shared CI database without `_devlake_migration_history`. When testregistry starts
 DevLake, framework migrations replay renames and drops against schema that is
 already current (e.g. `project_issue_metrics` →
-`project_incident_deployment_relationships`).
+`project_incident_deployment_relationships`). Aireview e2e creates `ai_reviews`
+with `_raw_data_*` columns before `20260422000002` runs.
 
 **Upstream status:** Pending — shared helpers plus guarded call sites.
 **Upstream PR:** none
@@ -271,7 +273,8 @@ already current (e.g. `project_issue_metrics` →
 
 **Rebase notes:** Keep `renameTableIfAbsent`, `renameColumnIfAbsent`, and
 `dropColumnsIfExist`; do not restore unconditional `RenameTable` /
-`RenameColumn` / `DropColumns` in these scripts.
+`RenameColumn` / `DropColumns` in these scripts. Skip `ADD COLUMN` in
+`20260422000002` when `HasColumn` is true (same pattern as `20260826`).
 
 ## jira: cleanup stale board associations after tickets leave/change board
 

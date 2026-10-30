@@ -52,7 +52,13 @@ func (*fixAiReviewDomainColumns) Up(basicRes context.BasicRes) errors.Error {
 		{"_raw_data_remark", remarkType},
 	}
 	for _, table := range tables {
+		if !db.HasTable(table) {
+			continue
+		}
 		for _, column := range columns {
+			if db.HasColumn(table, column.name) {
+				continue
+			}
 			sql := fmt.Sprintf(
 				"ALTER TABLE %s ADD COLUMN %s %s",
 				dal.QuoteIdent(dialect, table),
