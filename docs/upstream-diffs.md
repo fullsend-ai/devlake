@@ -276,7 +276,26 @@ with `_raw_data_*` columns before `20260422000002` runs.
 `RenameColumn` / `DropColumns` in these scripts. Skip `ADD COLUMN` in
 `20260422000002` when `HasColumn` is true (same pattern as `20260826`).
 
-## jira: cleanup stale board associations after tickets leave/change board
+## testregistry: composite PK and push inserts after delete
+
+**Files:**
+- `backend/plugins/testregistry/models/migrationscripts/20261030140500_fix_ci_test_tables_primary_key.go`
+- `backend/plugins/testregistry/models/migrationscripts/register.go`
+- `backend/plugins/testregistry/api/push.go`
+
+**Reason:** Shared e2e can leave `ci_test_*` tables without a composite primary
+key on PostgreSQL. `CreateOrUpdate` uses `ON CONFLICT`, which fails with SQLSTATE
+42P10. The push API already deletes suites and cases for the job before
+re-inserting, so use plain `Create` for those rows; keep `CreateOrUpdate` for
+`ci_test_jobs` and add a migration that applies the composite primary keys when
+missing.
+
+**Upstream status:** N/A — owned plugin.
+**Upstream PR:** none
+**Owner:** @fmuntean
+
+**Rebase notes:** Keep the PK migration and `Create` for suites/cases in
+`push.go`.
 
 **Files:**
 - `backend/plugins/jira/impl/impl.go`

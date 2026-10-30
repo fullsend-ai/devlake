@@ -37,5 +37,6 @@ func All() []plugin.MigrationScript {
 		new(addTestCasesTable),
 		new(addTektonTasksTable),
 		new(addJUnitRegexColumn),
+		new(fixCITestTablesPrimaryKey),
 	}
 }

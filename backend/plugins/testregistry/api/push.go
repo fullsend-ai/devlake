@@ -251,7 +251,7 @@ func postTestResultsImpl(input *plugin.ApiResourceInput, connectionId uint64) (*
 				Duration:     suite.Duration,
 			}
 
-			if dbErr := db.CreateOrUpdate(testSuite); dbErr != nil {
+			if dbErr := db.Create(testSuite); dbErr != nil {
 				err = errors.Default.Wrap(dbErr, fmt.Sprintf("failed to save test suite %s", suite.Name))
 				return nil, err
 			}
@@ -296,7 +296,7 @@ func postTestResultsImpl(input *plugin.ApiResourceInput, connectionId uint64) (*
 					SkipMessage:    skipMsg,
 				}
 
-				if dbErr := db.CreateOrUpdate(testCase); dbErr != nil {
+				if dbErr := db.Create(testCase); dbErr != nil {
 					err = errors.Default.Wrap(dbErr, fmt.Sprintf("failed to save test case %s", tc.Name))
 					return nil, err
 				}
