@@ -28,8 +28,7 @@ var _ plugin.MigrationScript = (*renamePipelineStepToStage)(nil)
 type renamePipelineStepToStage struct{}
 
 func (*renamePipelineStepToStage) Up(basicRes context.BasicRes) errors.Error {
-	// rename column `step` to `stage` for table `_devlake_pipelines`
-	return basicRes.GetDal().RenameColumn("_devlake_pipelines", "step", "stage")
+	return renameColumnIfAbsent(basicRes.GetDal(), "_devlake_pipelines", "step", "stage")
 }
 
 func (*renamePipelineStepToStage) Version() uint64 {

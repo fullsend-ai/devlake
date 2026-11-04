@@ -44,7 +44,7 @@ RUN mkdir -p /tmp/build && cd /tmp/build && \
     cd libgit2-1.5.0 && \
     mkdir build && cd build && \
     cmake .. -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=/usr/local && \
-    make -j$(nproc) install && \
+    make -j"$(nproc)" install && \
     ldconfig
 
 RUN go install github.com/vektra/mockery/v3@v3.8.1

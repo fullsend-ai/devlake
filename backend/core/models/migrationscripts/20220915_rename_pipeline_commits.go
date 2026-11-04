@@ -43,20 +43,22 @@ func (cicdPipelineRepo20220915After) TableName() string {
 
 func (*renamePipelineCommits) Up(basicRes context.BasicRes) errors.Error {
 	db := basicRes.GetDal()
-	err := db.RenameTable("cicd_pipeline_repos", "cicd_pipeline_commits")
-	if err != nil {
-		return err
+	hasCommits := db.HasTable("cicd_pipeline_commits")
+	hasRepos := db.HasTable("cicd_pipeline_repos")
+	if hasRepos && !hasCommits {
+		if err := renameTableIfAbsent(db, "cicd_pipeline_repos", "cicd_pipeline_commits"); err != nil {
+			return err
+		}
+		hasCommits = true
 	}
-	// err = db.DropIndexes("cicd_pipeline_repos", `idx_cicd_pipeline_repos_raw_data_params`)
-	// if err != nil {
-	// 	return err
-	// }
-	err = db.RenameColumn("cicd_pipeline_commits", "id", "pipeline_id")
-	if err != nil {
-		return err
+	// Plugin e2e tests AutoMigrate domain tables without recording migrations,
+	// so cicd_pipeline_commits may already exist when this script runs.
+	if hasCommits {
+		if err := renameColumnIfAbsent(db, "cicd_pipeline_commits", "id", "pipeline_id"); err != nil {
+			return err
+		}
 	}
-	err = db.AutoMigrate(cicdPipelineRepo20220915After{})
-	if err != nil {
+	if err := db.AutoMigrate(cicdPipelineRepo20220915After{}); err != nil {
 		return err
 	}
 	return nil

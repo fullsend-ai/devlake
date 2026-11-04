@@ -27,7 +27,7 @@ import (
 type addCicdScopeDropBuildsJobs struct{}
 
 type cicdPipeline20221107 struct {
-	CicdScopeId string
+	CicdScopeId string `gorm:"index;type:varchar(255)"`
 }
 
 func (cicdPipeline20221107) TableName() string {
@@ -35,7 +35,7 @@ func (cicdPipeline20221107) TableName() string {
 }
 
 type cicdTask20221107 struct {
-	CicdScopeId string
+	CicdScopeId string `gorm:"index;type:varchar(255)"`
 }
 
 func (cicdTask20221107) TableName() string {

@@ -21,6 +21,7 @@ import (
 	"database/sql"
 	"fmt"
 	"reflect"
+	"strings"
 
 	"github.com/apache/devlake/core/errors"
 )
@@ -80,6 +81,15 @@ type ClauseColumn struct {
 	Name  string
 	Alias string
 	Raw   bool
+}
+
+// QuoteIdent quotes a SQL identifier for the given database dialect.
+// MySQL uses backticks. Postgres uses double quotes.
+func QuoteIdent(dialect, name string) string {
+	if dialect == "postgres" {
+		return `"` + strings.ReplaceAll(name, `"`, `""`) + `"`
+	}
+	return "`" + strings.ReplaceAll(name, "`", "``") + "`"
 }
 
 // ClauseTable quote with name

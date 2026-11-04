@@ -28,7 +28,14 @@ var _ plugin.MigrationScript = (*renameCicdPipelineRepoToRepoUrl)(nil)
 type renameCicdPipelineRepoToRepoUrl struct{}
 
 func (*renameCicdPipelineRepoToRepoUrl) Up(basicRes context.BasicRes) errors.Error {
-	return basicRes.GetDal().RenameColumn("cicd_pipeline_commits", "repo", "repo_url")
+	db := basicRes.GetDal()
+	if !db.HasTable("cicd_pipeline_commits") {
+		return nil
+	}
+	if db.HasColumn("cicd_pipeline_commits", "repo") {
+		return renameColumnIfAbsent(db, "cicd_pipeline_commits", "repo", "repo_url")
+	}
+	return nil
 }
 
 func (*renameCicdPipelineRepoToRepoUrl) Version() uint64 {
