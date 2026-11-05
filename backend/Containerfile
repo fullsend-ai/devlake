@@ -15,7 +15,7 @@
 #
 # UBI 9-based DevLake backend image (parity with Dockerfile.konflux).
 
-ARG GO_VERSION=1.27.3
+ARG GO_VERSION=1.26.0
 ARG TINI_VERSION=v0.19.0
 
 # Pin to multi-arch manifest digest (not :latest) for reproducible builds.
@@ -28,10 +28,10 @@ ARG TARGETARCH
 ARG GOPROXY=
 ARG HTTP_PROXY=
 ARG HTTPS_PROXY=
-ARG GO_VERSION=1.27.3
-# SHA-256 from https://go.dev/dl/?mode=json&include=all (go1.27.3 linux archives)
-ARG GO_SHA256_AMD64=65efbc80fdc1fa2cd2631cad5b481777a68e8725f34e89f50fc6ac714e379b40
-ARG GO_SHA256_ARM64=a06e99309dbcbdca1a8ccd2282c3ee146e55930886e26b4f1193269587165f49
+ARG GO_VERSION=1.26.0
+# SHA-256 from https://go.dev/dl/?mode=json&include=all (go1.26.0 linux archives)
+ARG GO_SHA256_AMD64=aac1b08a0fb0c4e0a7c1555beb7b59180b05dfc5a3d62e40e9de90cd42f88235
+ARG GO_SHA256_ARM64=bd03b743eb6eb4193ea3c3fd3956546bf0e3ca5b7076c8226334afe6b75704cd
 
 ENV GOPROXY=${GOPROXY} \
     HTTP_PROXY=${HTTP_PROXY} \
@@ -70,8 +70,8 @@ RUN case "${BUILDARCH}" in \
     tar -C /usr/local -xzf /tmp/go.tar.gz && \
     rm -f /tmp/go.tar.gz
 
-RUN go install github.com/vektra/mockery/v3@v3.8.1 && \
-    go install github.com/swaggo/swag/cmd/swag@v1.16.6
+RUN go install github.com/vektra/mockery/v2@v2.53.6 && \
+    go install github.com/swaggo/swag/cmd/swag@v1.16.1
 
 # libssh2-devel is not in UBI; build from source for libgit2 SSH support
 ARG LIBSSH2_VERSION=1.11.0
@@ -87,10 +87,16 @@ RUN mkdir -p /tmp/build && cd /tmp/build && \
     make -j"$(nproc)" install && \
     cd / && rm -rf /tmp/build
 
-# git2go v34 accepts only libgit2 1.5.0.
+# Build libgit2 against native UBI libraries (same version as backend/Dockerfile)
+ARG LIBGIT2_VERSION=1.5.0
+# SHA-256 computed from https://github.com/libgit2/libgit2/archive/refs/tags/v1.5.0.tar.gz
+# (matches backend/scripts/install-libgit2.sh)
+ARG LIBGIT2_SHA256=8de872a0f201b33d9522b817c92e14edb4efad18dae95cf156cf240b2efff93e
 RUN mkdir -p /tmp/build && cd /tmp/build && \
-    wget https://github.com/libgit2/libgit2/archive/refs/tags/v1.5.0.tar.gz -O - | tar -xz && \
-    cd libgit2-1.5.0 && \
+    wget "https://github.com/libgit2/libgit2/archive/refs/tags/v${LIBGIT2_VERSION}.tar.gz" -O libgit2.tar.gz && \
+    echo "${LIBGIT2_SHA256}  libgit2.tar.gz" | sha256sum -c - && \
+    tar -xzf libgit2.tar.gz && \
+    cd "libgit2-${LIBGIT2_VERSION}" && \
     mkdir build && cd build && \
     cmake .. \
         -DBUILD_SHARED_LIBS=ON \

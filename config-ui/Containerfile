@@ -16,15 +16,14 @@
 # UBI 9-based DevLake config-ui image (parity with Dockerfile).
 
 # Pin to multi-arch manifest digest (not :latest) for reproducible builds.
-# Node 18 lacks util.styleText, which the Vite/Rolldown build imports.
-FROM registry.access.redhat.com/ubi9/nodejs-24@sha256:741311a284546343652721e5e7bd70f9f07d8fe4f5769d40bfb03aab0ad80391 AS builder
+FROM registry.access.redhat.com/ubi9/nodejs-24@sha256:76a4abef1a92fb27f512e02e67013851fee9d175f4e9ed5feb3566457f9bde59 AS builder
 
 USER 0
 WORKDIR /opt/app-root/src
 
 COPY . .
 
-# Use the committed Yarn binary (.yarn/releases/yarn-4.17.0.cjs via yarnPath).
+# Use committed Yarn Berry binary (.yarn/releases/yarn-4.17.0.cjs via yarnPath)
 RUN node .yarn/releases/yarn-4.17.0.cjs install && \
     node .yarn/releases/yarn-4.17.0.cjs build
 
