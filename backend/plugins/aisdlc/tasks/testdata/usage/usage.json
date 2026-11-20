@@ -1,0 +1,46 @@
+{
+  "schema": "agentic-telemetry/v1",
+  "pipeline": "rfe-autofixer",
+  "run_id": "20261118-143311",
+  "ci": {
+    "project": "redhat/rhel-ai/agentic-ci/rfe-autofixer",
+    "pipeline_id": "3084556360",
+    "job_id": "18147874639",
+    "job_name": "autofix-initiative-stage-dry",
+    "job_url": "https://gitlab.com/redhat/rhel-ai/agentic-ci/rfe-autofixer/-/jobs/18147874639"
+  },
+  "source": "claude-otel",
+  "totals": {
+    "cost_usd": 2.925981,
+    "input_tokens": 505,
+    "output_tokens": 18133,
+    "cache_read_tokens": 2347524,
+    "cache_creation_tokens": 207419,
+    "reasoning_tokens": null,
+    "api_requests": 59,
+    "tool_calls": 68,
+    "turns": null,
+    "user_prompts": 1
+  },
+  "by_model": {
+    "claude-opus-4-6": {
+      "cost_usd": 2.925981,
+      "input_tokens": 505,
+      "output_tokens": 18133,
+      "cache_read_tokens": 2347524,
+      "cache_creation_tokens": 207419,
+      "reasoning_tokens": null,
+      "api_requests": 59
+    }
+  },
+  "started_at": "2026-11-18T14:32:56.821Z",
+  "finished_at": "2026-11-18T14:38:29.973Z",
+  "raw": {
+    "raw/claude-otel.jsonl.gz": {
+      "bytes": 34605,
+      "uncompressed_bytes": 719561,
+      "sha256": "55d7b4cb0d956a186a4aa17c465c63cb10c084eb52d0bc5bbdb33d550d498393",
+      "removed_attributes": 400
+    }
+  }
+}

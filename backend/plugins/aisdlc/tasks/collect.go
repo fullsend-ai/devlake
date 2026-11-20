@@ -70,7 +70,7 @@ func CollectFiles(taskCtx plugin.SubTaskContext) errors.Error {
 		return errors.Default.Wrap(commitErr, "gitlab branch commit")
 	}
 	// List and download the same commit. A branch name can move between the two calls.
-	entries, listErr := client.ListBlobs(ctx, projectPath, commit, cfg.PathPrefix, cfg.Parser)
+	entries, listErr := client.ListBlobs(ctx, projectPath, commit, cfg.PathPrefix, cfg.Parser, cfg.UsageEnabled())
 	if listErr != nil {
 		_ = saveCheckpoint(db, data.Connection.ID, projectPath, commit, branch, 0, listErr.Error())
 		return errors.Default.Wrap(listErr, "gitlab tree")
@@ -82,6 +82,9 @@ func CollectFiles(taskCtx plugin.SubTaskContext) errors.Error {
 		rawID := parse.ID("raw", fmt.Sprintf("%d", data.Connection.ID), projectPath, entry.Path, entry.ID)
 		existing := &models.AisdlcRawFile{}
 		findErr := db.First(existing, dal.Where("id = ? AND connection_id = ?", rawID, data.Connection.ID))
+		if findErr != nil && !db.IsErrorNotFound(findErr) {
+			return findErr
+		}
 		if findErr == nil && existing.BlobId == entry.ID && existing.Body != "" {
 			existing.CommitSha = commit
 			existing.CollectedAt = collectedAt
@@ -93,9 +96,15 @@ func CollectFiles(taskCtx plugin.SubTaskContext) errors.Error {
 		}
 		body, rawErr := client.GetRaw(ctx, projectPath, commit, entry.Path)
 		if rawErr != nil {
-			logger.Warn(rawErr, "failed to download %s", entry.Path)
+			if ctx.Err() != nil {
+				return errors.Default.Wrap(ctx.Err(), "collection cancelled")
+			}
+			logger.Error(rawErr, "failed to download %s; continuing", entry.Path)
 			failures = append(failures, entry.Path+": "+rawErr.Error())
-			continue
+			// Record the observed revision even when its body is unavailable.
+			// This prevents extraction from treating an older blob as current.
+			// Empty bodies are retried by the next collection.
+			body = ""
 		}
 		row := &models.AisdlcRawFile{
 			NoPKModel:    scopeStamp(data.Connection.ID, projectPath),
@@ -115,9 +124,6 @@ func CollectFiles(taskCtx plugin.SubTaskContext) errors.Error {
 	message := strings.Join(failures, "\n")
 	if saveErr := saveCheckpoint(db, data.Connection.ID, projectPath, commit, branch, len(entries), message); saveErr != nil {
 		return saveErr
-	}
-	if len(failures) > 0 {
-		return errors.Default.New(fmt.Sprintf("%d download failure(s): %s", len(failures), message))
 	}
 	return nil
 }
