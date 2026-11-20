@@ -45,7 +45,12 @@ func underPrefix(path, prefix string) bool {
 }
 
 func skippedPath(path string) bool {
-	return hasSegment(path, "current")
+	return hasSegment(path, "current") || hasSegment(path, "latest")
+}
+
+// IsUsagePath selects only run-level summaries, never raw telemetry.
+func IsUsagePath(path string) bool {
+	return !skippedPath(path) && strings.HasSuffix(path, "/telemetry/usage.json")
 }
 
 func isPipelineData(path string) bool {
@@ -84,7 +89,7 @@ func BatchDir(path string) string {
 
 // SelectPaths keeps parser-owned blobs under prefix and drops strat-tasks
 // in a batch that also has pipeline-data.json.
-func SelectPaths(parser, prefix string, entries []TreeEntry) []TreeEntry {
+func SelectPaths(parser, prefix string, entries []TreeEntry, usage ...bool) []TreeEntry {
 	selected := make([]TreeEntry, 0, len(entries))
 	for _, entry := range entries {
 		if entry.Type != "" && entry.Type != "blob" {
@@ -93,7 +98,8 @@ func SelectPaths(parser, prefix string, entries []TreeEntry) []TreeEntry {
 		if entry.Mode == "120000" {
 			continue
 		}
-		if !underPrefix(entry.Path, prefix) || !Matches(parser, entry.Path) {
+		includeUsage := len(usage) > 0 && usage[0] && IsUsagePath(entry.Path)
+		if !underPrefix(entry.Path, prefix) || (!Matches(parser, entry.Path) && !includeUsage) {
 			continue
 		}
 		selected = append(selected, entry)

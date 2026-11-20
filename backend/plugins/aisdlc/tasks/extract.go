@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/apache/devlake/core/dal"
@@ -72,12 +71,12 @@ func ExtractObservations(taskCtx plugin.SubTaskContext) errors.Error {
 	}
 	message := strings.Join(set.FileErrors, "\n")
 	for _, item := range set.FileErrors {
-		logger.Warn(nil, "parse %s", item)
+		logger.Error(nil, "parse %s; continuing with valid observations", item)
 	}
 	if err := appendCheckpointError(db, data.Connection.ID, projectPath, message); err != nil {
 		return err
 	}
-	return errors.Default.New(fmt.Sprintf("%d file(s) failed to parse: %s", len(set.FileErrors), message))
+	return nil
 }
 
 // filesFromRaw keeps each blob's collection time. A file that is no longer in the

@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/apache/devlake/plugins/aisdlc/tasks/parse"
+	"github.com/stretchr/testify/require"
 )
 
 func TestListBlobsPaginatesAndFilters(t *testing.T) {
@@ -64,6 +65,35 @@ func TestListBlobsPaginatesAndFilters(t *testing.T) {
 	if len(entries) != 2 {
 		t.Fatalf("entries = %+v", entries)
 	}
+}
+
+func TestUsageSelectionAndDownloadLimits(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case strings.Contains(r.URL.Path, "/repository/tree"):
+			_, _ = w.Write([]byte(`[
+				{"id":"usage","path":"run/telemetry/usage.json","type":"blob","mode":"100644"},
+				{"id":"raw","path":"run/telemetry/raw/claude-otel.jsonl.gz","type":"blob","mode":"100644"},
+				{"id":"alias","path":"latest/telemetry/usage.json","type":"blob","mode":"100644"}
+			]`))
+		case strings.Contains(r.URL.Path, "large"):
+			_, _ = w.Write([]byte(strings.Repeat("x", maxBodyBytes+1)))
+		case strings.Contains(r.URL.Path, "missing"):
+			http.NotFound(w, r)
+		default:
+			_, _ = w.Write([]byte(`{}`))
+		}
+	}))
+	defer server.Close()
+	client := &GitlabClient{Base: server.URL, HTTP: server.Client(), Header: http.Header{}}
+	entries, err := client.ListBlobs(context.Background(), "group/results", "sha", "", "", true)
+	require.NoError(t, err)
+	require.Len(t, entries, 1)
+	require.Equal(t, "usage", entries[0].ID)
+	_, err = client.GetRaw(context.Background(), "group/results", "sha", "large")
+	require.ErrorContains(t, err, "exceeds")
+	_, err = client.GetRaw(context.Background(), "group/results", "sha", "missing")
+	require.ErrorContains(t, err, "404")
 }
 
 func TestNewGitlabClientFallsBackToPrivateToken(t *testing.T) {
