@@ -30,9 +30,13 @@ type AisdlcScopeConfig struct {
 	StationId          string `json:"stationId" mapstructure:"stationId" gorm:"type:varchar(255)"`
 	DisplayName        string `json:"displayName" mapstructure:"displayName" gorm:"type:varchar(255)"`
 	Parser             string `json:"parser" mapstructure:"parser" gorm:"type:varchar(64)"`
+	UsageMode          string `json:"usageMode" mapstructure:"usageMode" gorm:"type:varchar(32)"`
 	Branch             string `json:"branch" mapstructure:"branch" gorm:"type:varchar(255)"`
 	PathPrefix         string `json:"pathPrefix" mapstructure:"pathPrefix" gorm:"type:varchar(1024)"`
 }
+
+// UsageEnabled is opt-in so existing station-only scopes retain their selection.
+func (s *AisdlcScopeConfig) UsageEnabled() bool { return s.UsageMode == "summary" }
 
 func (AisdlcScopeConfig) TableName() string {
 	return "_tool_aisdlc_scope_configs"
