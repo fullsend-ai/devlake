@@ -18,5 +18,4 @@ tracker:
     github:
         allowed_targets:
             repos:
-                - konflux-ci/devlake
                 - fullsend-ai/fullsend
