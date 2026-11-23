@@ -127,8 +127,9 @@ identical semantics, eliminating the `golang.org/x/exp` import entirely.
 (`dockerfile: Containerfile`) and tags images as `localhost/devlake-*:local`
 instead of personal Quay tags / Apache Scarf images. Makefile image targets use
 `Containerfile`. Debian Dockerfiles are marked DEPRECATED pending removal.
-Konflux Tekton builds `backend/Containerfile` and `config-ui/Containerfile`
-(fork-only `backend/Dockerfile.konflux` removed).
+The Konflux Tekton pipelines (`.tekton/`) that built `backend/Containerfile` and
+`config-ui/Containerfile` were removed, along with fork-only
+`backend/Dockerfile.konflux`.
 
 **Upstream status:** N/A — Konflux local-dev / image-build customization.
 **Upstream PR:** none — not applicable
