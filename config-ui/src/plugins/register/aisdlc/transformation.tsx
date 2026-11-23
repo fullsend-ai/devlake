@@ -38,14 +38,16 @@ const parsers = [
 export const AisdlcTransformation = ({ entities, transformation, setTransformation, setHasError }: Props) => {
   const { token } = theme.useToken();
 
+  const usageMode = transformation.usageMode || 'off';
+
   useEffect(() => {
     const missing =
       !transformation.tenantId ||
       !transformation.sourceId ||
       !transformation.stationId ||
-      (!transformation.parser && transformation.usageMode !== 'summary');
+      (!transformation.parser && usageMode !== 'summary');
     setHasError(missing);
-  }, [transformation, setHasError]);
+  }, [transformation, usageMode, setHasError]);
 
   const setField = (key: string, value: string) => {
     setTransformation({ ...transformation, [key]: value });
@@ -93,7 +95,16 @@ export const AisdlcTransformation = ({ entities, transformation, setTransformati
                   onChange={(e) => setField('displayName', e.target.value)}
                 />
               </Block>
-              <Block title="Parser" description="Station results to collect, or usage summaries only." required>
+              <Block
+                title="Parser"
+                description="Station results to collect, or usage summaries only."
+                required={usageMode !== 'summary'}
+                error={
+                  !transformation.parser && usageMode !== 'summary'
+                    ? 'Enable Usage telemetry → Usage summaries, or choose a parser.'
+                    : undefined
+                }
+              >
                 <Select
                   style={{ width: '100%' }}
                   placeholder="Select a parser"
@@ -108,7 +119,7 @@ export const AisdlcTransformation = ({ entities, transformation, setTransformati
               >
                 <Select
                   style={{ width: '100%' }}
-                  value={transformation.usageMode || 'off'}
+                  value={usageMode}
                   options={[
                     { label: 'Disabled', value: 'off' },
                     { label: 'Usage summaries', value: 'summary' },

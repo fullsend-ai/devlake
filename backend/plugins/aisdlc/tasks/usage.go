@@ -131,11 +131,13 @@ func latestUsageReports(reports []parse.UsageReport) []parse.UsageReport {
 }
 
 func usageFingerprint(report parse.UsageReport) string {
-	// Artifact provenance and diagnostics differ between copies, but are not
+	// Artifact provenance, diagnostics and validation state differ between
+	// copies (for example a repaired NaN versus an explicit null), but are not
 	// usage. Compare normalized payloads rather than formatting or blob hashes.
 	report.File = parse.File{}
 	report.ID = ""
 	report.Diagnostics = nil
+	report.ValidationState = ""
 	body, _ := json.Marshal(report)
 	return string(body)
 }

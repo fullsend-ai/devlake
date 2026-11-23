@@ -85,6 +85,24 @@ func TestCurrentUsageCopiesAndConflicts(t *testing.T) {
 	require.NotEmpty(t, diagnostics)
 }
 
+func TestCurrentUsageRepairedNaNAndExplicitNullDoNotConflict(t *testing.T) {
+	cfg := parse.Config{SourceID: "source"}
+	file := usageTestFile(t)
+	body := file.Body
+	file.Path, file.BlobID = "nan/telemetry/usage.json", "nan"
+	file.Body = strings.Replace(body, `"cost_usd": 2.925981`, `"cost_usd": NaN`, 1)
+	nan := parse.ParseUsage(cfg, file)
+	file.Path, file.BlobID = "null/telemetry/usage.json", "null"
+	file.Body = strings.Replace(body, `"cost_usd": 2.925981`, `"cost_usd": null`, 1)
+	null := parse.ParseUsage(cfg, file)
+	require.Equal(t, "partial", nan.ValidationState)
+	require.Nil(t, nan.Totals.CostUSD)
+	require.Nil(t, null.Totals.CostUSD)
+	runs, _ := currentUsageRuns([]parse.UsageReport{nan, null})
+	require.Len(t, runs, 1)
+	require.False(t, runs[0].Conflicted)
+}
+
 func TestCurrentUsageMalformedCorrectionDoesNotResurrectOldCost(t *testing.T) {
 	cfg := parse.Config{SourceID: "source"}
 	file := usageTestFile(t)
