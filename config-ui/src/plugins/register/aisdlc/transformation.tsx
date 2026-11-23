@@ -30,6 +30,7 @@ interface Props {
 }
 
 const parsers = [
+  { label: 'Usage summaries only', value: '' },
   { label: 'RFE assessment (rfe_assess)', value: 'rfe_assess' },
   { label: 'Strategy pipeline (strat_pipeline)', value: 'strat_pipeline' },
 ];
@@ -37,11 +38,16 @@ const parsers = [
 export const AisdlcTransformation = ({ entities, transformation, setTransformation, setHasError }: Props) => {
   const { token } = theme.useToken();
 
+  const usageMode = transformation.usageMode || 'off';
+
   useEffect(() => {
     const missing =
-      !transformation.tenantId || !transformation.sourceId || !transformation.stationId || !transformation.parser;
+      !transformation.tenantId ||
+      !transformation.sourceId ||
+      !transformation.stationId ||
+      (!transformation.parser && usageMode !== 'summary');
     setHasError(missing);
-  }, [transformation, setHasError]);
+  }, [transformation, usageMode, setHasError]);
 
   const setField = (key: string, value: string) => {
     setTransformation({ ...transformation, [key]: value });
@@ -89,13 +95,36 @@ export const AisdlcTransformation = ({ entities, transformation, setTransformati
                   onChange={(e) => setField('displayName', e.target.value)}
                 />
               </Block>
-              <Block title="Parser" description="Which station files this repository contains." required>
+              <Block
+                title="Parser"
+                description="Station results to collect, or usage summaries only."
+                required={usageMode !== 'summary'}
+                error={
+                  !transformation.parser && usageMode !== 'summary'
+                    ? 'Enable Usage telemetry → Usage summaries, or choose a parser.'
+                    : undefined
+                }
+              >
                 <Select
                   style={{ width: '100%' }}
                   placeholder="Select a parser"
-                  value={transformation.parser || undefined}
+                  value={transformation.parser ?? ''}
                   options={parsers}
                   onChange={(value) => setField('parser', value)}
+                />
+              </Block>
+              <Block
+                title="Usage telemetry"
+                description="Collect agentic-telemetry/v1 usage.json summaries alongside station results. Raw logs stay in Git."
+              >
+                <Select
+                  style={{ width: '100%' }}
+                  value={usageMode}
+                  options={[
+                    { label: 'Disabled', value: 'off' },
+                    { label: 'Usage summaries', value: 'summary' },
+                  ]}
+                  onChange={(value) => setField('usageMode', value)}
                 />
               </Block>
               <Block title="Branch" description="Optional. Empty uses the repository default branch.">

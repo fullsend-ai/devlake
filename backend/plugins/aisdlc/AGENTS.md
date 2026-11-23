@@ -2,6 +2,10 @@
 
 Data-source plugin that collects AISDLC station artifacts from GitLab repositories and stores shared observations. The first parsers cover RFE Creator (`rfe-assess-data`) and Strategy Creator (`strat-pipeline-data`).
 
+See [README.md](README.md) for supported data, UI/API configuration, error handling,
+storage, and queries. `agentic-telemetry/v1` usage summaries are supported across
+RFE, Epic, and Strategy results repositories.
+
 ## Build & Test
 
 ```bash
@@ -16,7 +20,7 @@ Single-file verification: `go vet ./plugins/aisdlc/...`
 
 - `impl/impl.go` — plugin interfaces
 - `models/` — connection, scope, scope config, observations, and `migrationscripts/register.go`
-- `tasks/` — `collectFiles` → `extractObservations` → `linkWorkItems`
+- `tasks/` — `collectFiles` → `extractObservations` / `extractUsage` → `linkWorkItems` → `checkDownloads`
 - `tasks/parse/` — pure parsers and identity rules
 - `tasks/testdata/` — small fixtures taken from the two GitLab repos
 - `api/` — connections, scopes, scope configs, remote scopes, blueprints
@@ -25,13 +29,25 @@ Single-file verification: `go vet ./plugins/aisdlc/...`
 
 Both repositories keep immutable timestamped batch directories on the branch tip. Collect that tree. Do not walk git history.
 
-`RHAIRFE/current` and `RHAISTRAT/current` are symlinks to the latest batch. Skip any path segment named `current` so the batch is stored once, under its timestamp directory.
+`RHAIRFE/current` and `RHAISTRAT/current` are symlinks to the latest batch. Skip any path segment named `current` or `latest` so the batch is stored once, under its timestamp directory.
 
 Observation identity is `source_id + blob sha + path + field selector + observation_kind`. A later commit that does not change the blob updates `collected_at` and does not add a row. `collected_at` is the time `collectFiles` last saw the blob in the tree. Extraction copies that time, so a raw file that has left the tree keeps its previous stamp.
 
 ## Field mapping
 
 Configured on the scope, never inferred from the repo name: `tenant_id`, `source_id`, `station_id`, `parser` (`rfe_assess` or `strat_pipeline`).
+
+`usageMode: "summary"` adds `<run>/telemetry/usage.json` independently of the
+result parser. An empty parser is allowed only with summary ingestion enabled.
+Empty/`off` usage mode preserves existing result-only scopes. Raw telemetry
+files are not fetched.
+
+Usage reports are versioned by source/path/blob. `usage_runs` selects current
+report revisions; queries must join through it and exclude `conflicted` rows.
+Unknown measurements stay NULL; cost is decimal, counts are int64. Parsing is
+field-wise and logs producer errors without failing valid siblings or files.
+Only known schema versions are interpreted. Database failures remain fatal.
+The final `checkDownloads` subtask marks all-download, all-result-download, or all-summary-download failures as failed only after valid files are processed. Checkpoint diagnostics are byte-bounded.
 
 `rfe_assess` reads `*.result.md` only. `scores.csv` repeats those totals and is ignored. Each file is one `assessment` observation for the Jira RFE key in the filename. The batch folder is a timestamp with an unspecified timezone, not a CI execution, so no execution row is created. Attempt, pipeline id, and consumed revision stay unknown.
 

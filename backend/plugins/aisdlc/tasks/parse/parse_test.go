@@ -20,6 +20,7 @@ package parse
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
@@ -120,6 +121,16 @@ func TestParseRFEFixture(t *testing.T) {
 	}
 	if second.Observations[0].ID != obs.ID {
 		t.Fatal("observation id changed for the same blob")
+	}
+}
+
+func TestParseRFEUnavailableBodyIsFileError(t *testing.T) {
+	cfg := testConfig(ParserRFE)
+	file := File{Path: "RHAIRFE/20260719-041307/RHAIRFE-2402.result.md", BlobID: "failed-blob", Body: " \n "}
+	set := Parse(cfg, []File{file})
+	if len(set.Observations) != 0 || len(set.WorkItems) != 0 ||
+		len(set.FileErrors) != 1 || !strings.Contains(set.FileErrors[0], "body is unavailable or empty") {
+		t.Fatalf("unexpected result for failed download: %+v", set)
 	}
 }
 
