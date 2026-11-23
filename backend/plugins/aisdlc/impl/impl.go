@@ -77,6 +77,9 @@ func (p Aisdlc) GetTablesInfo() []dal.Tabler {
 		&models.AisdlcItemLink{},
 		&models.AisdlcUnknown{},
 		&models.AisdlcTime{},
+		&models.AisdlcUsageReport{},
+		&models.AisdlcUsageModel{},
+		&models.AisdlcUsageRun{},
 	}
 }
 
@@ -84,7 +87,9 @@ func (p Aisdlc) SubTaskMetas() []plugin.SubTaskMeta {
 	return []plugin.SubTaskMeta{
 		tasks.CollectFilesMeta,
 		tasks.ExtractObservationsMeta,
+		tasks.ExtractUsageMeta,
 		tasks.LinkWorkItemsMeta,
+		tasks.CheckDownloadsMeta,
 	}
 }
 
@@ -134,8 +139,11 @@ func validateScopeConfig(cfg *models.AisdlcScopeConfig) errors.Error {
 	if cfg.TenantId == "" || cfg.SourceId == "" || cfg.StationId == "" {
 		return errors.BadInput.New("tenantId, sourceId, and stationId are required")
 	}
-	if cfg.Parser != parse.ParserRFE && cfg.Parser != parse.ParserStrat {
-		return errors.BadInput.New(fmt.Sprintf("parser must be %s or %s", parse.ParserRFE, parse.ParserStrat))
+	if cfg.UsageMode != "" && cfg.UsageMode != "off" && cfg.UsageMode != "summary" {
+		return errors.BadInput.New("usageMode must be off or summary")
+	}
+	if cfg.Parser != parse.ParserRFE && cfg.Parser != parse.ParserStrat && !(cfg.Parser == "" && cfg.UsageEnabled()) {
+		return errors.BadInput.New(fmt.Sprintf("parser must be %s or %s, or empty with usageMode=summary", parse.ParserRFE, parse.ParserStrat))
 	}
 	if cfg.DisplayName == "" {
 		cfg.DisplayName = cfg.StationId

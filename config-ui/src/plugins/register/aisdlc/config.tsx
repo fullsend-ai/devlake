@@ -53,6 +53,7 @@ export const AisdlcConfig: IPluginConfig = {
       stationId: '',
       displayName: '',
       parser: '',
+      usageMode: 'off',
       branch: '',
       pathPrefix: '',
     },

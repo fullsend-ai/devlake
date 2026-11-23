@@ -25,5 +25,7 @@ func All() []plugin.MigrationScript {
 	return []plugin.MigrationScript{
 		&initSchema{},
 		&addNoPKColumns{},
+		&addUsage{},
+		&addDownloadFailureCounts{},
 	}
 }

@@ -584,6 +584,9 @@ station fields are edited on the scope-config form. `gitlabConnectionId` is also
 added to the connection test whitelist (same silent-drop as COVERPORT-351). The
 connection-form files are shared with the section above; keep both sets of fields.
 
+The AISDLC scope configuration also exposes `usageMode` (`off` or `summary`)
+and a usage-only selection (empty result parser) for agentic telemetry ingestion.
+
 **Upstream status:** N/A — fork-only plugin.
 **Upstream PR:** none — not applicable
 **Owner:** @fmuntean
