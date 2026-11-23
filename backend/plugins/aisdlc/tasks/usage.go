@@ -77,7 +77,7 @@ func ExtractUsage(taskCtx plugin.SubTaskContext) errors.Error {
 		return err
 	}
 	if len(diagnostics) > 0 {
-		return appendCheckpointError(db, data.Connection.ID, data.Options.FullName, strings.Join(diagnostics, "\n"))
+		return appendCheckpointError(db, data.Connection.ID, data.Options.FullName, checkpointDiagnostics(diagnostics))
 	}
 	return nil
 }

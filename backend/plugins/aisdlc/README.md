@@ -249,11 +249,18 @@ Producer data problems are logged at **error** level and ingestion continues:
   keep provenance and diagnostics, without guessing measurements.
 - Per-file download errors: log and record the observed revision with an empty
   body; continue other files and retry that body on the next collection.
+  Empty RFE result bodies are file errors, not scoreless assessments.
+- When every selected download fails, or every selected result or usage summary fails,
+  the final `checkDownloads` subtask fails the pipeline **after** valid files
+  have been extracted and linked. Mixed outcomes remain successful with
+  checkpoint diagnostics and error logs.
 - Malformed station-result files: log and continue other valid observations.
 
 Authentication, branch/tree discovery, cancellation, and database failures still
 fail collection when reliable progress cannot be made. Failed database writes
-are rolled back. Checkpoint diagnostics and the current report's
+are rolled back. Checkpoint messages contain a bounded diagnostic count and
+sample; complete per-file download/parse errors remain in logs, and the current
+usage report's
 `validation_state`/`diagnostics` explain partial ingestion even when a subtask
 succeeds. Historical bad revisions retain their diagnostics but are not logged
 again once superseded.

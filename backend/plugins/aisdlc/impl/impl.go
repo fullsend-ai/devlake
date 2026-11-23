@@ -89,6 +89,7 @@ func (p Aisdlc) SubTaskMetas() []plugin.SubTaskMeta {
 		tasks.ExtractObservationsMeta,
 		tasks.ExtractUsageMeta,
 		tasks.LinkWorkItemsMeta,
+		tasks.CheckDownloadsMeta,
 	}
 }
 

@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/apache/devlake/core/dal"
 	"github.com/apache/devlake/core/errors"
@@ -72,13 +73,18 @@ func CollectFiles(taskCtx plugin.SubTaskContext) errors.Error {
 	// List and download the same commit. A branch name can move between the two calls.
 	entries, listErr := client.ListBlobs(ctx, projectPath, commit, cfg.PathPrefix, cfg.Parser, cfg.UsageEnabled())
 	if listErr != nil {
-		_ = saveCheckpoint(db, data.Connection.ID, projectPath, commit, branch, 0, listErr.Error())
+		_ = saveCheckpoint(db, data.Connection.ID, projectPath, commit, branch, downloadCounts{}, []string{listErr.Error()})
 		return errors.Default.Wrap(listErr, "gitlab tree")
 	}
 
 	collectedAt := time.Now().UTC()
 	var failures []string
+	counts := downloadCounts{files: len(entries)}
 	for _, entry := range entries {
+		isSummary := cfg.UsageEnabled() && parse.IsUsagePath(entry.Path)
+		if isSummary {
+			counts.summaries++
+		}
 		rawID := parse.ID("raw", fmt.Sprintf("%d", data.Connection.ID), projectPath, entry.Path, entry.ID)
 		existing := &models.AisdlcRawFile{}
 		findErr := db.First(existing, dal.Where("id = ? AND connection_id = ?", rawID, data.Connection.ID))
@@ -101,6 +107,10 @@ func CollectFiles(taskCtx plugin.SubTaskContext) errors.Error {
 			}
 			logger.Error(rawErr, "failed to download %s; continuing", entry.Path)
 			failures = append(failures, entry.Path+": "+rawErr.Error())
+			counts.failed++
+			if isSummary {
+				counts.failedSummaries++
+			}
 			// Record the observed revision even when its body is unavailable.
 			// This prevents extraction from treating an older blob as current.
 			// Empty bodies are retried by the next collection.
@@ -121,11 +131,17 @@ func CollectFiles(taskCtx plugin.SubTaskContext) errors.Error {
 			return saveErr
 		}
 	}
-	message := strings.Join(failures, "\n")
-	if saveErr := saveCheckpoint(db, data.Connection.ID, projectPath, commit, branch, len(entries), message); saveErr != nil {
+	if saveErr := saveCheckpoint(db, data.Connection.ID, projectPath, commit, branch, counts, failures); saveErr != nil {
 		return saveErr
 	}
 	return nil
+}
+
+type downloadCounts struct {
+	files           int
+	failed          int
+	summaries       int
+	failedSummaries int
 }
 
 // LoadGitlabConnection reads token and endpoint from the GitLab plugin's connection table.
@@ -143,7 +159,7 @@ func LoadGitlabConnection(db dal.Dal, id uint64) (*GitlabConnLookup, errors.Erro
 	return &glConn, nil
 }
 
-func saveCheckpoint(db dal.Dal, connectionID uint64, projectPath, commit, branch string, fileCount int, message string) errors.Error {
+func saveCheckpoint(db dal.Dal, connectionID uint64, projectPath, commit, branch string, counts downloadCounts, failures []string) errors.Error {
 	row := &models.AisdlcCheckpoint{
 		NoPKModel:        scopeStamp(connectionID, projectPath),
 		Id:               checkpointID(connectionID, projectPath),
@@ -151,11 +167,41 @@ func saveCheckpoint(db dal.Dal, connectionID uint64, projectPath, commit, branch
 		ProjectPath:      projectPath,
 		ExaminedRevision: commit,
 		Branch:           branch,
-		FileCount:        fileCount,
-		ErrorMessage:     message,
+		FileCount:        counts.files,
+		DownloadFailures: counts.failed,
+		SummaryFiles:     counts.summaries,
+		SummaryFailures:  counts.failedSummaries,
+		ErrorMessage:     checkpointDiagnostics(failures),
 		CollectedAt:      time.Now().UTC(),
 	}
 	return db.CreateOrUpdate(row)
+}
+
+// MySQL TEXT holds at most 65,535 bytes. Leave space for future diagnostics
+// and retain complete per-file errors in logs and usage validation details in reports.
+const checkpointMessageBytes = 4096
+
+func checkpointDiagnostics(messages []string) string {
+	if len(messages) == 0 {
+		return ""
+	}
+	samples := messages
+	if len(samples) > 3 {
+		samples = samples[:3]
+	}
+	return truncateCheckpoint(fmt.Sprintf("%d diagnostic(s): %s", len(messages), strings.Join(samples, "\n")))
+}
+
+func truncateCheckpoint(message string) string {
+	if len(message) <= checkpointMessageBytes {
+		return message
+	}
+	const suffix = "... [truncated]"
+	limit := checkpointMessageBytes - len(suffix)
+	for !utf8.RuneStart(message[limit]) {
+		limit--
+	}
+	return message[:limit] + suffix
 }
 
 func checkpointID(connectionID uint64, projectPath string) string {
@@ -176,6 +222,7 @@ func appendCheckpointError(db dal.Dal, connectionID uint64, projectPath, message
 		row.ErrorMessage += "\n"
 	}
 	row.ErrorMessage += message
+	row.ErrorMessage = truncateCheckpoint(row.ErrorMessage)
 	row.RawDataParams = scopeRawParams(connectionID, projectPath)
 	return db.Update(row)
 }

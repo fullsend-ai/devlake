@@ -20,7 +20,7 @@ Single-file verification: `go vet ./plugins/aisdlc/...`
 
 - `impl/impl.go` — plugin interfaces
 - `models/` — connection, scope, scope config, observations, and `migrationscripts/register.go`
-- `tasks/` — `collectFiles` → `extractObservations` / `extractUsage` → `linkWorkItems`
+- `tasks/` — `collectFiles` → `extractObservations` / `extractUsage` → `linkWorkItems` → `checkDownloads`
 - `tasks/parse/` — pure parsers and identity rules
 - `tasks/testdata/` — small fixtures taken from the two GitLab repos
 - `api/` — connections, scopes, scope configs, remote scopes, blueprints
@@ -47,6 +47,7 @@ report revisions; queries must join through it and exclude `conflicted` rows.
 Unknown measurements stay NULL; cost is decimal, counts are int64. Parsing is
 field-wise and logs producer errors without failing valid siblings or files.
 Only known schema versions are interpreted. Database failures remain fatal.
+The final `checkDownloads` subtask marks all-download, all-result-download, or all-summary-download failures as failed only after valid files are processed. Checkpoint diagnostics are byte-bounded.
 
 `rfe_assess` reads `*.result.md` only. `scores.csv` repeats those totals and is ignored. Each file is one `assessment` observation for the Jira RFE key in the filename. The batch folder is a timestamp with an unspecified timezone, not a CI execution, so no execution row is created. Attempt, pipeline id, and consumed revision stay unknown.
 

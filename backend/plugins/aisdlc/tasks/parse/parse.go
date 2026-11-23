@@ -112,6 +112,9 @@ func Parse(cfg Config, files []File) DraftSet {
 }
 
 func parseRFE(cfg Config, file File) (built, error) {
+	if strings.TrimSpace(file.Body) == "" {
+		return built{}, fmt.Errorf("result file body is unavailable or empty")
+	}
 	match := rfeFilePattern.FindStringSubmatch(file.Path)
 	if match == nil {
 		return built{}, fmt.Errorf("result file name has no RFE key")

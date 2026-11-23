@@ -47,6 +47,9 @@ type AisdlcCheckpoint struct {
 	ExaminedRevision string `gorm:"type:varchar(64)"`
 	Branch           string `gorm:"type:varchar(255)"`
 	FileCount        int
+	DownloadFailures int
+	SummaryFiles     int
+	SummaryFailures  int
 	ErrorMessage     string `gorm:"type:text"`
 	CollectedAt      time.Time
 }

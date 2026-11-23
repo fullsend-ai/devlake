@@ -69,11 +69,10 @@ func ExtractObservations(taskCtx plugin.SubTaskContext) errors.Error {
 	if len(set.FileErrors) == 0 {
 		return nil
 	}
-	message := strings.Join(set.FileErrors, "\n")
 	for _, item := range set.FileErrors {
 		logger.Error(nil, "parse %s; continuing with valid observations", item)
 	}
-	if err := appendCheckpointError(db, data.Connection.ID, projectPath, message); err != nil {
+	if err := appendCheckpointError(db, data.Connection.ID, projectPath, checkpointDiagnostics(set.FileErrors)); err != nil {
 		return err
 	}
 	return nil
