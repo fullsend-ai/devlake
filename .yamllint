@@ -19,8 +19,6 @@ ignore: |
   /node_modules
   /config-ui/node_modules
   /grafana/dashboards
-  # Tekton PipelineRuns are generated/managed by Konflux
-  /.tekton/
   # Historical release files — not worth fixing retroactively
   /devops/releases/
   # ASF infrastructure config — managed externally
