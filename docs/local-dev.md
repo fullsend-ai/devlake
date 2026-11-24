@@ -73,7 +73,7 @@ podman build -f backend/Containerfile -t localhost/devlake-backend:local backend
 podman build -f config-ui/Containerfile -t localhost/devlake-frontend:local config-ui
 ```
 
-Debian-based Dockerfiles (`backend/Dockerfile`, `backend/Dockerfile.local`, `config-ui/Dockerfile`) are **deprecated**; prefer the UBI Containerfiles. Local compose builds from `Containerfile`. `backend/Dockerfile.konflux` was removed along with the Konflux Tekton pipelines.
+Debian-based Dockerfiles (`backend/Dockerfile`, `backend/Dockerfile.local`, `config-ui/Dockerfile`) are **deprecated**; prefer the UBI Containerfiles.
 
 ## Building (from backend/)
 
