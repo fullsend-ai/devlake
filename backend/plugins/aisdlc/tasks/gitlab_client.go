@@ -225,14 +225,14 @@ func (c *GitlabClient) ListProjects(ctx context.Context, search, page string) ([
 
 // ListBlobs returns parser-owned blobs under prefix.
 // ref is a commit SHA when CollectFiles calls this, so the tree matches GetRaw.
-func (c *GitlabClient) ListBlobs(ctx context.Context, projectPath, ref, prefix, parser string) ([]parse.TreeEntry, error) {
+func (c *GitlabClient) ListBlobs(ctx context.Context, projectPath, ref, prefix, parser string, usage ...bool) ([]parse.TreeEntry, error) {
 	prefix = strings.Trim(prefix, "/")
 	if prefix != "" && strings.Contains(pathBase(prefix), ".") {
 		entry, err := c.fileEntry(ctx, projectPath, ref, prefix)
 		if err != nil {
 			return nil, err
 		}
-		return parse.SelectPaths(parser, prefix, []parse.TreeEntry{entry}), nil
+		return parse.SelectPaths(parser, prefix, []parse.TreeEntry{entry}, usage...), nil
 	}
 	page := "1"
 	var entries []parse.TreeEntry
@@ -255,17 +255,21 @@ func (c *GitlabClient) ListBlobs(ctx context.Context, projectPath, ref, prefix, 
 			return nil, err
 		}
 		if len(batch) == 0 {
+			page = ""
 			break
 		}
 		for _, item := range batch {
 			entries = append(entries, parse.TreeEntry{ID: item.ID, Path: item.Path, Type: item.Type, Mode: item.Mode})
 		}
-		if next == "" || next == page {
-			break
+		if next == page {
+			return nil, fmt.Errorf("gitlab tree pagination did not advance")
 		}
 		page = next
 	}
-	return parse.SelectPaths(parser, prefix, entries), nil
+	if page != "" {
+		return nil, fmt.Errorf("gitlab tree exceeds pagination limit")
+	}
+	return parse.SelectPaths(parser, prefix, entries, usage...), nil
 }
 
 func (c *GitlabClient) fileEntry(ctx context.Context, projectPath, ref, filePath string) (parse.TreeEntry, error) {
@@ -295,12 +299,15 @@ func (c *GitlabClient) GetRaw(ctx context.Context, projectPath, ref, filePath st
 		return "", err
 	}
 	defer resp.Body.Close()
-	body, err := io.ReadAll(io.LimitReader(resp.Body, maxBodyBytes))
+	body, err := io.ReadAll(io.LimitReader(resp.Body, maxBodyBytes+1))
 	if err != nil {
 		return "", err
 	}
 	if resp.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("gitlab raw status %d for %s", resp.StatusCode, filePath)
+	}
+	if len(body) > maxBodyBytes {
+		return "", fmt.Errorf("gitlab raw file exceeds %d bytes: %s", maxBodyBytes, filePath)
 	}
 	return string(body), nil
 }
