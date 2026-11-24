@@ -62,7 +62,6 @@ header:
     - ".github/workflows/prioritize.yml"
     - ".fullsend/**"
     - "CLAUDE.md"
-    - "CODEOWNERS"
     - "**/AGENTS.md"
     - "**/SKILL.md"
     - "backend/plugins/*/README.md"
